@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Générateur d'étude patrimoniale — Hexa Patrimoine</title>
+  <meta name="description" content="Application web pour produire une étude patrimoniale (.pptx) à partir de données saisies — Hexa Patrimoine." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="appbar">
+    <div class="appbar-inner">
+      <img class="appbar-logo" id="appbarLogo" alt="Hexa Patrimoine" />
+      <div class="appbar-titles">
+        <h1>Générateur d'étude patrimoniale</h1>
+        <p>Saisissez les données du client, puis produisez la présentation PowerPoint.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <button id="btnGenerate" class="btn btn-primary">⬇ Générer le PowerPoint</button>
+      <button id="btnImport" class="btn">Importer des données</button>
+      <button id="btnExport" class="btn">Exporter les données</button>
+      <button id="btnReset" class="btn btn-ghost">Réinitialiser</button>
+      <input type="file" id="fileImport" accept="application/json,.json" hidden />
+      <span class="spacer"></span>
+      <span id="saveState" class="save-state">Modèle d'exemple chargé</span>
+    </div>
+    <div id="genMsg" class="gen-msg"></div>
+  </div>
+
+  <main class="layout">
+    <section class="col-form">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Données du client</h2>
+          <button id="btnExpand" class="btn-mini" data-open="0" type="button">Tout déplier</button>
+        </div>
+        <div id="form" class="form"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>Modules à inclure</h2></div>
+        <p class="panel-hint">Cochez les pages pédagogiques et dispositifs à intégrer à la présentation. Les pages personnalisées (profil, actifs, succession, plan d'action…) sont toujours incluses.</p>
+        <div id="modules" class="modules"></div>
+      </div>
+    </section>
+
+    <aside class="col-side">
+      <div class="panel panel-sticky">
+        <div class="panel-head">
+          <h2>Plan du document</h2>
+          <span class="badge"><span id="slideCount">—</span> slides</span>
+        </div>
+        <div id="outline" class="outline"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="appfoot">
+    <p class="appfoot-copy">© Propriété exclusive de Seine Gestion Privée</p>
+    <p><strong>Hexa Patrimoine — Maisons-Laffitte.</strong> Outil interne de production de documents. La présentation générée constitue une étude personnalisée et ne se substitue pas à une consultation juridique ou fiscale. Données enregistrées localement dans votre navigateur (aucun envoi serveur).</p>
+  </footer>
+
+  <!-- Bibliothèque PptxGenJS (CDN jsdelivr, version épinglée) + repli unpkg -->
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <script>
+    if (typeof PptxGenJS === "undefined") {
+      document.write('<script src="https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"><\/script>');
+    }
+  </script>
+  <!-- Application -->
+  <script src="js/logo-data.js"></script>
+  <script src="js/hexa-brand.js"></script>
+  <script src="js/hexa-succession.js"></script>
+  <script src="js/hexa-compute.js"></script>
+  <script src="js/hexa-content.js"></script>
+  <script src="js/hexa-slides.js"></script>
+  <script src="js/hexa-form.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Mesure d'audience (optionnelle, sans cookie — GoatCounter). Désactivée tant que le code est vide.
+       Pour l'activer : créez un compte gratuit sur https://www.goatcounter.com/ puis collez votre code
+       (le sous-domaine choisi) ci-dessous. Voir docs/README.md → « Mesure d'audience ». -->
+  <script>
+    window.HEXA_GOATCOUNTER = ""; /* ex : "moncabinet" → laissez vide pour désactiver */
+    (function () {
+      if (!window.HEXA_GOATCOUNTER) return;
+      var s = document.createElement("script");
+      s.async = true; s.src = "//gc.zgo.at/count.js";
+      s.setAttribute("data-goatcounter", "https://" + window.HEXA_GOATCOUNTER + ".goatcounter.com/count");
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
