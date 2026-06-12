@@ -158,6 +158,8 @@ textarea.field-input { resize: vertical; min-height: 56px; line-height: 1.45; }
 .module-toggle { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--slate); transition: .15s; }
 .module-toggle:hover { background: var(--mist); border-color: var(--petrol-lt); }
 .module-toggle input { width: 17px; height: 17px; accent-color: var(--petrol); }
+.module-cat { grid-column: 1 / -1; font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; color: var(--petrol); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.module-cat:first-child { margin-top: 0; padding-top: 0; border-top: none; }
 
 /* ---------- Outline ---------- */
 .outline { padding: 8px 10px 14px; max-height: 70vh; overflow-y: auto; }
