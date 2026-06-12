@@ -64,6 +64,7 @@
   // Abattements (art. 779 & s. CGI)
   var ABATTEMENT_ENFANT = 100000;        // par enfant ET par parent, renouvelable 15 ans
   var ABATTEMENT_HANDICAP = 159325;      // cumulable (art. 779 II)
+  var ABATTEMENT_CONJOINT = 80724;       // art. 790 E — abattement de donation entre époux/partenaires
 
   // Barème usufruit / nue-propriété selon l'âge de l'usufruitier — art. 669 CGI.
   // Retourne la quote-part de NUE-PROPRIÉTÉ (la part taxable transmise aux enfants).
@@ -165,11 +166,18 @@
     var biens = (actif.immobilier || []).concat(actif.autres || []);
     var pot = { commun: 0, propreM: 0, propreMme: 0 };
     var avParBucket = { commun: 0, propreM: 0, propreMme: 0 };
+    var npSansUsufruitier = []; // NP d'un PARENT sans âge d'usufruitier : exclusion à confirmer
 
     biens.forEach(function (b) {
       var bucket = bucketOf(b.proprietaire);
       if (bucket === "exclu") return;                 // bien d'un enfant → exclu
-      if (b.droit === "NP") return;                   // NP déjà transmise → exclue (art. 1133)
+      if (b.droit === "NP") {
+        // Exclusion (art. 1133) légitime si le parent n'est QUE nu-propriétaire.
+        // Sans âge d'usufruitier renseigné, l'usufruitier n'est pas identifié :
+        // on collecte le bien pour alerte (calcul par défaut inchangé).
+        if (b.ageUsufruitier == null || String(b.ageUsufruitier) === "") npSansUsufruitier.push(b.designation || b.type || "bien démembré");
+        return;                                       // NP déjà transmise → exclue (art. 1133)
+      }
       var val = parseNum(b.valeur) * (parseNum(b.quote) || 100) / 100;
       var estAV = /assurance.?vie/i.test(b.type || "") || /assurance.?vie/i.test(b.designation || "");
       if (estAV) { avParBucket[bucket] += val; if (avHors) return; } // AV : hors barème par défaut
@@ -188,7 +196,8 @@
 
     return {
       communsNet: pot.commun, propreMNet: pot.propreM, propreMmeNet: pot.propreMme,
-      avTotal: avParBucket.commun + avParBucket.propreM + avParBucket.propreMme
+      avTotal: avParBucket.commun + avParBucket.propreM + avParBucket.propreMme,
+      npSansUsufruitier: npSansUsufruitier
     };
   }
 
@@ -252,14 +261,61 @@
   // ===========================================================================
   // Helpers foyer
   // ===========================================================================
+  // Année de référence des âges et des délais (rappel 15 ans). Garde-fou : une
+  // saisie ANTÉRIEURE à l'année de la date du document est ignorée (avertissement
+  // en console) — on ne calcule JAMAIS une succession sur un millésime antérieur
+  // à l'étude. Une saisie future (projection) reste permise.
   function anneeReference(data, params) {
-    if (params.anneeReference) return parseInt(params.anneeReference, 10);
     var m = /(\d{4})/.exec((data && data.doc && data.doc.date) || "");
-    return m ? parseInt(m[1], 10) : new Date().getFullYear();
+    var anneeDoc = m ? parseInt(m[1], 10) : new Date().getFullYear();
+    var saisie = (params && params.anneeReference) ? parseInt(params.anneeReference, 10) : NaN;
+    if (isNaN(saisie)) return anneeDoc;
+    if (saisie < anneeDoc) {
+      var k = saisie + "<" + anneeDoc; // avertir UNE fois par couple saisie/document (la fonction est appelée à chaque recalcul)
+      if (!anneeReference._warned) anneeReference._warned = {};
+      if (!anneeReference._warned[k] && typeof console !== "undefined" && console.warn) {
+        anneeReference._warned[k] = 1;
+        console.warn("HexaSuccession : année de référence saisie (" + saisie + ") antérieure à la date du document (" + anneeDoc + ") — " + anneeDoc + " retenue pour le calcul.");
+      }
+      return anneeDoc;
+    }
+    return saisie;
   }
   function ageA(naissance, annee) {
     var m = /(\d{4})/.exec(String(naissance || ""));
     return m ? (annee - parseInt(m[1], 10)) : 0;
+  }
+  // Âge EXACT (mois/jour pris en compte) à une date de référence — contrairement à
+  // ageA qui ne compare que les millésimes. null si l'une des dates est invalide.
+  function ageExact(naissance, dateRef) {
+    var d = new Date(naissance), r = new Date(dateRef);
+    if (isNaN(d.getTime()) || isNaN(r.getTime())) return null;
+    var age = r.getFullYear() - d.getFullYear();
+    var m = r.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && r.getDate() < d.getDate())) age--;
+    return age;
+  }
+  // Date de référence COMPLÈTE du document : data.doc.date si elle est parseable
+  // (« 2026-06-19 »), sinon le 1er janvier de l'année de référence (choix prudent :
+  // dans l'année, c'est la date qui minimise les âges).
+  function dateRefDocument(data, params) {
+    var raw = (data && data.doc && data.doc.date) || "";
+    var d = new Date(raw);
+    if (!isNaN(d.getTime()) && /\d{4}/.test(String(raw))) return d;
+    return new Date(anneeReference(data, params || {}) + "-01-01");
+  }
+  // Majorité d'un membre (éligibilité donataire au don familial, art. 790 G) :
+  //  1. la CAPACITÉ saisie fait foi — « Mineur » exclut ; « Majeur capable »,
+  //     « Tutelle », « Curatelle » incluent (un majeur protégé reste un MAJEUR,
+  //     éligible sous réserve des règles de protection — ce n'est pas un mineur) ;
+  //  2. à défaut, l'âge EXACT à la date du document si une date fiable existe ;
+  //  3. dans le doute (ni capacité, ni date exploitable) : NON éligible (prudence fiscale).
+  function estMajeur(membre, dateRef) {
+    var cap = String((membre && membre.capacite) || "");
+    if (cap === "Mineur") return false;
+    if (cap === "Majeur capable" || cap === "Tutelle" || cap === "Curatelle") return true;
+    var age = (membre && membre.naissance) ? ageExact(membre.naissance, dateRef) : null;
+    return age == null ? false : age >= 18;
   }
   function membres(data) { return (data && data.foyer && data.foyer.membres) || []; }
   function membreParQualite(data, q) {
@@ -297,6 +353,91 @@
         statut: a == null ? "Date à renseigner" : (reste > 0 ? "Rappel fiscal — reconstitution dans " + reste + " an" + (reste > 1 ? "s" : "") + " (" + (a + 15) + ")" : "Abattement reconstitué")
       };
     });
+  }
+
+  var DON_MANUEL = 31865; // art. 790 G — don familial de somme d'argent (donateur < 80 ans, donataire majeur)
+  function estDonManuel(type) { return /somme d'argent|don familial|don manuel/i.test(String(type || "")); }
+
+  // Capacité de donation en franchise de droits, par parent et par enfant. Cumule deux
+  // dispositifs reconstitués tous les 15 ans, minorés des donations encore rappelables
+  // (< 15 ans, art. 784) du même donateur au même bénéficiaire :
+  //   - abattement de droit commun : 100 000 € (art. 779 ; + 159 325 € si handicap, art. 779 II) ;
+  //   - don familial de somme d'argent : 31 865 € (art. 790 G ; parent < 80 ans, enfant majeur).
+  function donationCapacite(data, paramsIn) {
+    var params = withDefaults(paramsIn || (data && data.successionParams));
+    var annee = anneeReference(data, params);
+    var donations = (data && Array.isArray(data.donations)) ? data.donations : [];
+    function norm(s) { return String(s || "").trim().toLowerCase().replace(/\s+/g, " "); }
+    // Donations d'un donateur à un bénéficiaire encore dans le délai des 15 ans, ventilées
+    // entre don manuel (790 G) et abattement de droit commun (779). Appariement tolérant
+    // (casse / espaces) pour fiabiliser la minoration malgré des libellés saisis librement.
+    function rappelables(donateur, beneficiaire) {
+      var dc = 0, dm = 0;
+      donations.forEach(function (d) {
+        if (norm(d.donateur) !== norm(donateur) || norm(d.beneficiaire) !== norm(beneficiaire)) return;
+        var a = anneeDe(d.date);
+        if (a != null && (annee - a) >= 15) return; // délai écoulé : abattement reconstitué
+        if (estDonManuel(d.type)) dm += parseNum(d.valeur); else dc += parseNum(d.valeur);
+      });
+      return { dc: dc, dm: dm };
+    }
+    var lesEnfants = enfants(data);
+    var dateRef = dateRefDocument(data, params); // date complète du document (majorité 790 G)
+    var parents = [];
+    [membreParQualite(data, "Monsieur"), membreParQualite(data, "Madame")].forEach(function (p) {
+      if (!p) return;
+      var label = labelMembre(p), ageParent = p.naissance ? ageA(p.naissance, annee) : null;
+      var rows = lesEnfants.map(function (e) {
+        var abat = ABATTEMENT_ENFANT + (e.handicap === "Oui" ? ABATTEMENT_HANDICAP : 0);
+        var u = rappelables(label, labelMembre(e));
+        var dispoAbat = Math.max(0, abat - u.dc);
+        // Majorité du donataire (art. 790 G) : la capacité saisie fait foi, sinon
+        // l'âge exact à la date du document ; dans le doute, NON éligible.
+        var eligibleDM = (ageParent == null || ageParent < 80) && estMajeur(e, dateRef);
+        var dispoDM = eligibleDM ? Math.max(0, DON_MANUEL - u.dm) : 0;
+        var total = dispoAbat + dispoDM;
+        return {
+          enfant: labelMembre(e), abattement: abat, utilise: u.dc, disponibleAbattement: dispoAbat,
+          donManuel: dispoDM, eligibleDonManuel: eligibleDM, utiliseDonManuel: u.dm,
+          disponible: total, consomme: total <= 0
+        };
+      });
+      var totalDispo = rows.reduce(function (s, r) { return s + r.disponible; }, 0);
+      parents.push({ label: label, ageParent: ageParent, rows: rows, totalDisponible: totalDispo, consomme: rows.length > 0 && totalDispo <= 0 });
+    });
+    return { annee: annee, parents: parents, nEnfants: lesEnfants.length, abattementEnfant: ABATTEMENT_ENFANT, donManuel: DON_MANUEL };
+  }
+
+  // Abattement de donation disponible pour UNE donation (donateur → bénéficiaire),
+  // déterminé par le lien de parenté et net des donations encore rappelables (< 15 ans).
+  //   - parent → enfant : 100 000 € (art. 779 ; + 159 325 € si handicap, art. 779 II)
+  //     + don familial de 31 865 € (art. 790 G) si donateur < 80 ans et donataire majeur ;
+  //   - entre époux : 80 724 € (art. 790 E) ;
+  //   - autre : aucun abattement modélisé ici.
+  function abattementDonation(data, donateurLabel, beneficiaireLabel, paramsIn) {
+    var params = withDefaults(paramsIn || (data && data.successionParams));
+    var annee = anneeReference(data, params);
+    var donations = (data && Array.isArray(data.donations)) ? data.donations : [];
+    function find(lbl) { return ((data && data.foyer && data.foyer.membres) || []).filter(function (m) { return labelMembre(m) === lbl; })[0] || null; }
+    var dn = find(donateurLabel), bn = find(beneficiaireLabel);
+    var lien, base;
+    if (bn && bn.qualite === "Enfant") {
+      lien = "Enfant";
+      base = ABATTEMENT_ENFANT + (bn.handicap === "Oui" ? ABATTEMENT_HANDICAP : 0);
+      // Don familial (790 G) : donateur < 80 ans ET donataire MAJEUR — la capacité
+      // saisie fait foi, sinon l'âge exact à la date du document ; doute = exclu.
+      var ageDon = (dn && dn.naissance) ? ageA(dn.naissance, annee) : null;
+      if ((ageDon == null || ageDon < 80) && estMajeur(bn, dateRefDocument(data, params))) base += DON_MANUEL;
+    } else if (dn && bn && ((dn.qualite === "Monsieur" && bn.qualite === "Madame") || (dn.qualite === "Madame" && bn.qualite === "Monsieur"))) {
+      lien = "Conjoint";
+      base = ABATTEMENT_CONJOINT;
+    } else {
+      lien = "Autre";
+      base = 0;
+    }
+    var prior = donneAvant15ans(donations, donateurLabel, beneficiaireLabel, annee);
+    var disponible = Math.max(0, base - prior);
+    return { lien: lien, base: base, prior: prior, disponible: disponible };
   }
 
   // ===========================================================================
@@ -393,9 +534,14 @@
 
   root.HexaSuccession = {
     compute: compute,
+    anneeReference: anneeReference,
     donationsSuivi: donationsSuivi,
+    donationCapacite: donationCapacite,
+    abattementDonation: abattementDonation,
     baremeLigneDirecte: baremeLigneDirecte,
     nuePropPct: nuePropPct,
+    ageExact: ageExact,
+    estMajeur: estMajeur,
     reserveGlobale: reserveGlobale,
     quotiteDisponible: quotiteDisponible,
     liquidation: liquidation,
