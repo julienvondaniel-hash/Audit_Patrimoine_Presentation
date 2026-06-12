@@ -9,7 +9,7 @@
   "use strict";
 
   var LS_KEY = "hexa_etude_data_v12";
-  var BUILD = "2026-06-09 · delai-15ans";
+  var BUILD = "2026-06-11 · ifi-rp-decote";
   var state = { data: null };
 
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -29,19 +29,18 @@
     { t: "Synthèse exécutive" },
     { t: "▸ Section 1 — Découverte", d: 1 }, { t: "Composition du foyer" }, { t: "Composition du patrimoine" }, { t: "Patrimoine immobilier" }, { t: "Analyse budgétaire" },
     { t: "▸ Section 2 — Diagnostic", d: 1 }, { t: "Diagnostic patrimonial" }, { t: "Cartographie des risques" },
-    { t: "▸ Section 2.1 — Audit successoral", d: 1 }, { t: "1er décès — Monsieur" }, { t: "1er décès — Madame" }, { t: "Impact des donations NP" }, { t: "Réserve & quotité disponible" }, { t: "Donations & délai 15 ans", cond: function (d) { return ((d.donations) || []).length > 0; } },
-    { t: "Abattements de donation", m: "successoral" }, { t: "Démembrement en 3 étapes", m: "successoral" }, { t: "Barème usufruit / NP", m: "successoral" },
-    { t: "Exemples de donation NP" },
-    { t: "3 stratégies anti-indivision", m: "successoral" },
+    { t: "▸ Section 2.1 — Audit successoral", d: 1 }, { t: "Abattements de donation", m: "successoral" }, { t: "Réserve & quotité disponible" }, { t: "1er décès — Monsieur" }, { t: "1er décès — Madame" }, { t: "Donations & capacité en franchise", cond: function (d) { var enf = ((d.foyer && d.foyer.membres) || []).some(function (mb) { return mb.qualite === "Enfant"; }); return ((d.donations) || []).length > 0 || enf; } },
+    { t: "Démembrement en 3 étapes", m: "successoral" }, { t: "Barème usufruit / NP", m: "successoral" },
     { t: "▸ Section 3 — Objectifs", d: 1 }, { t: "Objectifs hiérarchisés" },
-    { t: "▸ Section 4 — Préconisations", d: 1 }, { t: "Arbitrage de l'immobilier" }, { t: "Allocation cible" }, { t: "Préconisations personnalisées" },
-    { t: "▸ PER", d: 1, m: "per" }, { t: "PER — Fonctionnement", m: "per" }, { t: "PER — Avantages fiscaux", m: "per" }, { t: "PER — Piloter la tranche", m: "per" },
-    { t: "▸ Assurance-vie", d: 1, m: "assuranceVie" }, { t: "AV Lux — Fonctionnement", m: "assuranceVie" }, { t: "AV Lux — Fiscalité", m: "assuranceVie" }, { t: "AV — Outil patrimonial", m: "assuranceVie" }, { t: "AV — Avant / après 70 ans", m: "assuranceVie" },
+    { t: "▸ Section 4 — Préconisations", d: 1 }, { t: "Arbitrage — Immobilier" }, { t: "Arbitrage — Patrimoine mobilier" }, { t: "Suivi des plafonds & marges" }, { t: "Préconisations personnalisées" }, { t: "Stratégie de donation" }, { t: "Réinvestissement du capital" },
+    { t: "PER — l'essentiel", m: "per" },
+    { t: "AV française — l'essentiel", m: "assuranceVie" },
+    { t: "AV luxembourgeoise — l'essentiel", m: "assuranceVieLux" },
     { t: "SCPI", m: "scpi" },
-    { t: "▸ PEA", d: 1, m: "pea" }, { t: "PEA — Fonctionnement", m: "pea" }, { t: "PEA — Fiscalité", m: "pea" },
-    { t: "▸ PEA-PME", d: 1, m: "peapme" }, { t: "PEA-PME — Fonctionnement", m: "peapme" }, { t: "PEA-PME — Fiscalité", m: "peapme" },
-    { t: "▸ FCPR", d: 1, m: "fcpr" }, { t: "FCPR — Fonctionnement", m: "fcpr" }, { t: "FCPR — Fiscalité", m: "fcpr" },
-    { t: "▸ SCI à l'IS", d: 1, m: "sciIs" }, { t: "SCI — Montage", m: "sciIs" }, { t: "SCI — Transmission des parts", m: "sciIs" }, { t: "SCI — Avantages & limites", m: "sciIs" }, { t: "SCI — Points de vigilance", m: "sciIs" }, { t: "SCI — Chronologie", m: "sciIs" },
+    { t: "PEA — l'essentiel", m: "pea" },
+    { t: "PEA-PME — l'essentiel", m: "peapme" },
+    { t: "FCPR — l'essentiel", m: "fcpr" },
+    { t: "SCI à l'IS — l'essentiel", m: "sciIs" },
     { t: "▸ Section 5 — Plan d'action", d: 1 }, { t: "Plan d'action" },
     { t: "Suivi & prochaines étapes", m: "suivi" },
     { t: "Merci" }
@@ -131,6 +130,12 @@
     }, 30);
   }
 
+  // ------- livret imprimable A4 (HTML -> window.print) -------
+  function openPrintBooklet() {
+    window.HexaCompute.syncDerived(state.data); // valeurs dérivées fraîches avant rendu
+    window.HexaPrint.open(state.data);
+  }
+
   // ------- import / export JSON -------
   function exportJSON() {
     window.HexaCompute.syncDerived(state.data);
@@ -189,6 +194,7 @@
     $("form").addEventListener("change", rebuildIfPersonsChanged);
 
     $("btnGenerate").addEventListener("click", generate);
+    $("btnPrint").addEventListener("click", openPrintBooklet);
     $("btnExport").addEventListener("click", exportJSON);
     $("btnReset").addEventListener("click", resetDefaults);
     $("fileImport").addEventListener("change", function (e) { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ""; });
