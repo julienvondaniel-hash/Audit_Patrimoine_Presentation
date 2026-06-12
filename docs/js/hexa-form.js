@@ -20,12 +20,18 @@
     qualite: "Qualité", prenom: "Prénom", nom: "Nom", naissance: "Date de naissance",
     lieuNaissance: "Lieu de naissance", capacite: "Capacité juridique", handicap: "Handicap", filiation: "Enfant de",
     activitePro: "Activité", statut: "Statut", contrat: "Contrat",
+    statutFiscal: "Statut fiscal-social", prevoyanceDeces: "Prévoyance décès", prevoyanceIncapInval: "Prévoyance incapacité / invalidité",
+    fiscalite: "Situation fiscale", revenuImposable: "Revenu net imposable (€)", irN1: "IR payé N-1 (€)", irN2: "IR payé N-2 (€)",
+    epargneRetraite: "Épargne retraite", perPlafondMonsieur: "Plafond PER disponible — Monsieur", perPlafondMadame: "Plafond PER disponible — Madame", perMutualisation: "Mutualisation des plafonds (conjoints)",
+    N1: "N-1 (€)", N2: "N-2 (€)", N3: "N-3 (€)", N4: "N-4 (€)",
     situationMaritale: "Situation maritale", regime: "Régime matrimonial", residence: "Résidence fiscale", tmi: "Tranche marginale d'imposition (TMI)", activite: "Activité & revenus", transmission: "Objectif de transmission",
     detail: "Détail", k: "Libellé", v: "Valeur",
     brut: "Actif brut", passif: "Passif", net: "Actif net", partImmo: "Part immobilière",
     endettement: "Taux d'endettement", comment: "Commentaire",
     immobilier: "Patrimoine immobilier", autres: "Autres actifs (financiers & divers)",
-    classe: "Classe", type: "Type", categorie: "Catégorie", valeur: "Valeur (€)",
+    classe: "Classe", type: "Type", categorie: "Catégorie", valeur: "Valeur (€)", dateAcquisition: "Date d'acquisition", prixAcquisition: "Prix d'acquisition (€)",
+    fraisAcquisition: "Frais d'acq. réels (€) (vide = forfait 7,5 %)", travaux: "Travaux réels (€) (vide = forfait 15 % si > 5 ans)", fraisCession: "Frais de cession (€)",
+    forfaits: "Forfaits d'acquisition (art. 150 VB : frais 7,5 % + travaux 15 %)",
     proprietaire: "Propriétaire", quote: "Quote-part %", droit: "Droit", ageUsufruitier: "Âge usufruitier",
     versements: "Versements (€)", assure: "Assuré", beneficiaires: "Bénéficiaires",
     passifs: "Passif — prêts en cours", designation: "Désignation", crd: "Capital restant dû (€)",
@@ -44,11 +50,12 @@
     donationPPParParent: "Donation NP par parent — valeur PP (€, vide = abattements)",
     anneeReference: "Année de référence (vide = date du doc.)",
     donations: "Donations consenties (suivi des 15 ans)", donateur: "Donateur", beneficiaire: "Bénéficiaire", date: "Date",
-    donationExamples: "Exemples de donation NP", donationNote: "Note", bien: "Bien", valeur: "Valeur totale",
+    bien: "Bien",
     rows: "Lignes", parent: "Parent", np: "% NP", valeurNP: "Valeur NP", abattement: "Abattement",
     base: "Base taxable", droits: "Droits", reste: "Abattements restants",
     objectifs: "Objectifs hiérarchisés", profilPatrimonial: "Profil patrimonial (pré-remplit les objectifs)", arbitrage: "Arbitrage immobilier", intro: "Introduction",
-    current: "Situation actuelle", strategies: "Stratégies proposées", gain: "Gain global", enveloppe: "Enveloppe à arbitrer (€)",
+    current: "Situation actuelle", strategies: "Stratégies proposées", gain: "Gain global", enveloppe: "Enveloppe cible",
+    donationsEnvisagees: "Donations envisagées", reinvestissements: "Réinvestissement par enveloppe",
     rendement: "Rendement", rendementLabel: "Légende rendement", points: "Points", label: "Libellé",
     value: "Valeur", good: "Positif ?", profil: "Profil", fisc: "Fiscalité", accentGold: "Accent doré ?",
     planAction: "Plan d'action", step: "Étape", objectif: "Objectif", proposition: "Proposition",
@@ -87,12 +94,17 @@
     "Vatican", "Venezuela", "Viêt Nam", "Yémen", "Zambie", "Zimbabwe"
   ];
 
+  // Enveloppes / supports d'investissement cibles (réinvestissement du capital dégagé)
+  var ENVELOPPES = ["Assurance-vie française", "Assurance-vie luxembourgeoise", "PER", "PEA", "PEA-PME", "SCPI", "FCPR", "SCI à l'IS", "Compte-titres", "Contrat de capitalisation", "Autre"];
+
   // Champs à choix fermé (rendus en menu déroulant)
   var ENUMS = {
     level: ["Élevé", "Moyen", "Modéré"],
     qualite: ["Monsieur", "Madame", "Enfant", "Autre"],
     capacite: ["Majeur capable", "Mineur", "Tutelle", "Curatelle"],
     handicap: ["Non", "Oui"],
+    statutFiscal: ["", "Salarié", "TNS (indépendant / gérant majoritaire)", "Dirigeant assimilé salarié", "Retraité", "Sans activité"],
+    prevoyanceDeces: ["Non", "Oui"], prevoyanceIncapInval: ["Non", "Oui"], perMutualisation: ["Non", "Oui"],
     filiation: ["Enfant du couple", "Monsieur 1er lit", "Madame 1er lit"],
     assuranceVieHorsSuccession: ["Oui", "Non"],
     donationEntreEpoux: ["Non", "Oui"],
@@ -103,10 +115,12 @@
     droit: ["PP", "NP", "UF"],
     classe: ["Résidence principale", "Résidence secondaire", "Investissement locatif"],
     typeCredit: ["Immobilier", "Consommation"],
-    activitePro: ["Salarié(e)", "Fonctionnaire", "Indépendant / TNS", "Chef d'entreprise", "Profession libérale", "Retraité(e)", "Sans activité", "Étudiant(e)", "Autre"]
+    forfaits: ["Oui", "Non"],
+    activitePro: ["Salarié(e)", "Fonctionnaire", "Indépendant / TNS", "Chef d'entreprise", "Profession libérale", "Retraité(e)", "Sans activité", "Étudiant(e)", "Autre"],
+    enveloppe: ENVELOPPES
   };
   var IMMO_TYPES = ["Maison", "Appartement", "Immeuble de rapport", "Parking", "Foncier non bâti", "Château", "Manoir", "Étang", "Forêt", "Terre agricole", "Péniche", "Autre"];
-  var AUTRES_TYPES = ["Compte courant", "Livret A", "LDD", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "Contrat de capitalisation", "FCPR", "FCPI", "Club Deal", "autre"];
+  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "Contrat de capitalisation", "FCPR", "FCPI", "Club Deal", "autre"];
   var DONATION_TYPES = ["Avance successorale (rapportable)", "Hors part successorale", "Donation-partage", "Don familial de somme d'argent"];
   var SITUATIONS = ENUMS.situationMaritale;
   var REGIME_MARIAGE = ["Communauté réduite aux acquêts (régime légal)", "Communauté universelle", "Séparation de biens", "Participation aux acquêts"];
@@ -149,6 +163,9 @@
     ageUsufruitier: { on: "droit", when: function (d) { return d === "NP"; }, na: "—" },
     // Filiation : pertinente uniquement pour les enfants (identifie les enfants d'un 1er lit)
     filiation: { on: "qualite", when: function (q) { return q === "Enfant"; }, na: "—" },
+    statutFiscal: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
+    prevoyanceDeces: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
+    prevoyanceIncapInval: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
     // Versements : PEA / PEA-PME (capacité de versement) + assurance-vie / capitalisation (primes versées)
     versements: { on: "type", when: function (t) { return t === "PEA" || t === "PEA-PME" || t === "Assurance-vie" || t === "Contrat de capitalisation"; }, na: "—" },
     // Assuré & bénéficiaires : seulement pour l'assurance-vie
@@ -167,12 +184,14 @@
     }
   }
   // Champs date (rendus en sélecteur de date, format contraint)
-  var DATE_KEYS = { naissance: 1, dateFin: 1, date: 1 };
+  var DATE_KEYS = { naissance: 1, dateFin: 1, date: 1, dateAcquisition: 1 };
   // Champs présents dans les données mais NON éditables tels quels dans le formulaire
   var HIDDEN_KEYS = { activite: 1, comment: 1 };
   // Tableaux affichés « transposés » (éléments en colonnes, champs en lignes)
   var TRANSPOSE_KEYS = { membres: 1 };
-  var MEMBER_TEMPLATE = { qualite: "Enfant", prenom: "", nom: "", naissance: "", lieuNaissance: "", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Célibataire", regime: "", filiation: "Enfant du couple", activitePro: "Sans activité", statut: "", contrat: "" };
+  // statutFiscal volontairement VIDE par défaut : « Salarié » ne doit jamais être
+  // affiché sans saisie explicite (affichage « — » à défaut).
+  var MEMBER_TEMPLATE = { qualite: "Enfant", prenom: "", nom: "", naissance: "", lieuNaissance: "", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Célibataire", regime: "", filiation: "Enfant du couple", activitePro: "Sans activité", statut: "", contrat: "", statutFiscal: "", prevoyanceDeces: "Non", prevoyanceIncapInval: "Non" };
 
   function label(key) { return LABELS[key] || key; }
   function isLong(key, val) { return LONG_KEYS[key] || (typeof val === "string" && val.length > 90); }
@@ -250,10 +269,12 @@
     switch (key) {
       case "revenus": return isBudget ? { poste: REVENU_POSTES[0], libelle: "", montants: {} } : { libelle: "", montant: "" };
       case "charges": return isBudget ? { poste: CHARGE_POSTES[0], libelle: "", montants: {} } : { libelle: "", montant: "" };
-      case "immobilier": return { designation: "", classe: ENUMS.classe[0], type: IMMO_TYPES[0], valeur: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" };
+      case "immobilier": return { designation: "", classe: ENUMS.classe[0], type: IMMO_TYPES[0], valeur: "", dateAcquisition: "", prixAcquisition: "", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" };
       case "autres": return { type: AUTRES_TYPES[0], designation: "", valeur: "", versements: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "", assure: "", beneficiaires: "" };
       case "passifs": return { designation: "", crd: "", dateFin: "", mensualite: "", taux: "", typeCredit: ENUMS.typeCredit[0], rattachement: "" };
       case "donations": return { donateur: "", beneficiaire: "", valeur: "", type: DONATION_TYPES[0], date: "" };
+      case "donationsEnvisagees": return { donateur: "", beneficiaire: "", montant: "" };
+      case "reinvestissements": return { enveloppe: ENVELOPPES[0], montant: "" };
       default: return null;
     }
   }
@@ -495,6 +516,46 @@
     host.appendChild(box);
   }
 
+  // --- arbitrage : tableau de revue de TOUS les actifs (valeur nette, date d'acq.,
+  // montant à arbitrer/vendre). Les montants sont stockés dans data.arbitrage.montants
+  // par clé d'actif ; emitChange() rafraîchit le « disponible après arbitrage » calculé.
+  function renderArbitrageTable(data, host) {
+    data.arbitrage = data.arbitrage || {};
+    data.arbitrage.montants = data.arbitrage.montants || {};
+    var K = window.HexaCompute;
+    var lignes = (K && K.arbitrageActifs(data).lignes) || [];
+    // Construit un tableau (sous-titre + colonnes) pour un sous-ensemble d'actifs ;
+    // l'input numérique reste lié à data.arbitrage.montants[l.key] via emitChange().
+    function table(title, headers, items, withDate) {
+      host.appendChild(el("div", "subgroup-title", title));
+      var wrap = el("div", "table-wrap");
+      var tbl = el("table", "edit-table");
+      var thead = el("thead"), htr = el("tr");
+      headers.forEach(function (h) { htr.appendChild(el("th", null, h)); });
+      thead.appendChild(htr); tbl.appendChild(thead);
+      var tbody = el("tbody");
+      items.forEach(function (l) {
+        var tr = el("tr");
+        tr.appendChild(el("td", null, l.designation));
+        tr.appendChild(el("td", null, l.detail || l.categorie));
+        tr.appendChild(el("td", null, K ? K.formatEur(l.valeurNette) : String(l.valeurNette)));
+        if (withDate) tr.appendChild(el("td", null, l.dateAcquisition ? (K ? K.formatDateFR(l.dateAcquisition) : l.dateAcquisition) : "—"));
+        else tr.appendChild(el("td", null, "—"));
+        var tdM = el("td");
+        var inp = el("input", "field-input"); inp.type = "text"; inp.inputMode = "numeric";
+        inp.value = data.arbitrage.montants[l.key] || "";
+        inp.addEventListener("input", function () { data.arbitrage.montants[l.key] = inp.value; emitChange(); });
+        tdM.appendChild(inp); tr.appendChild(tdM);
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody); wrap.appendChild(tbl); host.appendChild(wrap);
+    }
+    var immo = lignes.filter(function (l) { return l.isImmo; });
+    var mob = lignes.filter(function (l) { return !l.isImmo; });
+    table("Immobilier", ["Actif", "Classe", "Valeur nette", "Date d'acq.", "Montant à arbitrer / vendre"], immo, true);
+    table("Mobilier / financier", ["Actif", "Type", "Valeur", "—", "Montant à désinvestir"], mob, false);
+  }
+
   // --- aiguillage générique pour un tableau ---
   function renderArrayField(parent, key, host) {
     var arr = parent[key];
@@ -560,11 +621,14 @@
     { key: "foyer", title: "Composition du foyer", icon: "👥", wrap: ["foyer", "foyerNote"] },
     { key: "actif", title: "Composition du patrimoine", icon: "🏠" },
     { key: "budget", title: "Analyse budgétaire", icon: "€" },
+    { key: "fiscaliteRetraite", title: "Situation fiscale & épargne retraite", icon: "🧾", wrap: ["fiscalite", "epargneRetraite"] },
     { key: "diagnostic", title: "Diagnostic (forces / vigilance)", icon: "⚖" },
     { key: "risques", title: "Cartographie des risques", icon: "⚠" },
-    { key: "succession", title: "Audit successoral", icon: "⚱", wrap: ["donations", "successionParams", "donationExamples", "donationNote"] },
-    { key: "objectifs", title: "Objectifs hiérarchisés", icon: "🎯", wrap: ["profilPatrimonial", "objectifs", "transmission"] },
+    { key: "succession", title: "Audit successoral", icon: "⚱", wrap: ["donations", "successionParams"] },
+    { key: "objectifs", title: "Objectifs hiérarchisés", icon: "🎯", wrap: ["profilPatrimonial", "objectifs"] },
     { key: "arbitrage", title: "Préconisations — arbitrage", icon: "↗" },
+    { key: "donationsEnvisagees", title: "Donations envisagées", icon: "🎁" },
+    { key: "reinvestissements", title: "Réinvestissement par enveloppe", icon: "🔁" },
     { key: "planAction", title: "Plan d'action", icon: "✅" },
     { key: "contexte", title: "Contexte & avertissement", icon: "ℹ" },
     { key: "synthese", title: "Synthèse exécutive", icon: "✦" }
@@ -588,8 +652,16 @@
       var body = el("div", "section-body");
       var keys = sec.wrap || [sec.key];
       // Sections entièrement dérivées des données : pas de saisie, juste l'aperçu calculé.
-      var COMPUTED_ONLY = { diagnostic: 1, risques: 1, synthese: 1 };
-      if (!COMPUTED_ONLY[sec.key]) {
+      var COMPUTED_ONLY = { diagnostic: 1, risques: 1, synthese: 1, planAction: 1 };
+      // Arbitrage : note + tableau des actifs (piloté par les données), pas de rendu générique.
+      if (sec.key === "arbitrage") {
+        data.arbitrage = data.arbitrage || {};
+        scalarField(data.arbitrage, "note", body);
+        // Plus-value de cession : forfaits art. 150 VB activés par défaut (option globale).
+        data.pvParams = data.pvParams || { forfaits: "Oui" };
+        scalarField(data.pvParams, "forfaits", body);
+        renderArbitrageTable(data, body);
+      } else if (!COMPUTED_ONLY[sec.key]) {
         keys.forEach(function (k) {
           var v = data[k];
           // Clé attendue comme tableau d'objets (gabarit connu) mais valeur malformée
@@ -605,7 +677,7 @@
         });
       }
       // bloc de valeurs calculées (lecture seule)
-      if (sec.key === "actif" || sec.key === "budget" || sec.key === "synthese" || sec.key === "diagnostic" || sec.key === "arbitrage" || sec.key === "succession" || sec.key === "risques" || sec.key === "objectifs") {
+      if (sec.key === "actif" || sec.key === "budget" || sec.key === "synthese" || sec.key === "diagnostic" || sec.key === "arbitrage" || sec.key === "donationsEnvisagees" || sec.key === "reinvestissements" || sec.key === "planAction" || sec.key === "succession" || sec.key === "risques" || sec.key === "objectifs") {
         var cbox = el("div", "computed-box");
         cbox.id = "computed-" + sec.key;
         body.appendChild(cbox);
@@ -651,18 +723,54 @@
     }
     var car = document.getElementById("computed-arbitrage");
     if (car && data.arbitrage) {
-      var at = K.arbitrageTotals(data.arbitrage);
+      var aa = K.arbitrageActifs(data);
       car.innerHTML = "";
       car.appendChild(grid("Calculé automatiquement", [
-        ["Total alloué", K.formatEur(at.total)],
-        ["Enveloppe à arbitrer", K.formatEur(at.enveloppe)],
-        ["Reste disponible", K.formatEur(at.reste)]
+        ["Actifs à arbitrer", String(aa.aArbitrer.length)],
+        ["Disponible après arbitrage", K.formatEur(aa.disponibleApres)]
       ]));
       var props = K.preconisations(data);
       if (props.length) {
         car.appendChild(el("div", "comp-sub", "Préconisations personnalisées"));
         props.forEach(function (pr, i) { car.appendChild(el("div", "comp-sentence", (i + 1) + ". " + pr.title + " — " + pr.detail)); });
       }
+    }
+    var cde = document.getElementById("computed-donationsEnvisagees");
+    if (cde && K.donationStrategie && window.HexaSuccession) {
+      var ds = K.donationStrategie(data);
+      cde.innerHTML = "";
+      cde.appendChild(grid("Coût des donations envisagées", [
+        ["Total donné", K.formatEur(ds.totalMontant)],
+        ["En franchise", K.formatEur(ds.totalFranchise)],
+        ["Coût total des droits", K.formatEur(ds.totalDroits)],
+        ["Capital dégagé (arbitrage)", K.formatEur(ds.disponibleApres)]
+      ]));
+      ds.lignes.forEach(function (l) {
+        cde.appendChild(el("div", "comp-sentence", l.donateur + " → " + l.beneficiaire + " (" + l.lien + ") : " + K.formatEur(l.montant) + " — franchise " + K.formatEur(l.enFranchise) + ", droits " + K.formatEur(l.droits)));
+      });
+    }
+    var cre = document.getElementById("computed-reinvestissements");
+    if (cre && K.reinvestTotals) {
+      var rt = K.reinvestTotals(data);
+      cre.innerHTML = "";
+      cre.appendChild(grid("Allocation du capital dégagé", [
+        ["Capital dégagé (arbitrage)", K.formatEur(rt.disponible)],
+        ["Donations envisagées", K.formatEur(rt.donne)],
+        ["À réinvestir", K.formatEur(rt.aAllouer)],
+        ["Réinvesti (saisi)", K.formatEur(rt.total)],
+        ["Reste à allouer", K.formatEur(rt.reste)]
+      ]));
+      rt.parEnveloppe.forEach(function (e) {
+        cre.appendChild(el("div", "comp-sentence", e.enveloppe + " : " + K.formatEur(e.montant)));
+      });
+    }
+    var cpa = document.getElementById("computed-planAction");
+    if (cpa && K.feuilleDeRoute) {
+      var fr = K.feuilleDeRoute(data);
+      cpa.innerHTML = "";
+      cpa.appendChild(el("div", "comp-title", "Feuille de route — générée à partir des arbitrages, donations et réinvestissements"));
+      if (!fr.length) cpa.appendChild(el("div", "comp-sentence", "Renseignez les arbitrages, les donations envisagées et les réinvestissements pour générer la feuille de route."));
+      else fr.forEach(function (s, i) { cpa.appendChild(el("div", "comp-sentence", (i + 1) + ". " + s.title + " — " + s.objectif + " : " + s.proposition)); });
     }
     var cs = document.getElementById("computed-synthese");
     if (cs && data.actif && data.synthese) {
@@ -705,7 +813,7 @@
     }
     var ca = document.getElementById("computed-actif");
     if (ca && data.actif) {
-      var t = K.assetTotals(data.actif);
+      var t = K.assetTotals(data.actif, data); // périmètre couple (hors actifs des enfants)
       ca.innerHTML = "";
       ca.appendChild(grid("Calculé automatiquement", [
         ["Immobilier", K.formatEur(t.immo)], ["Autres actifs", K.formatEur(t.autres)],
@@ -713,14 +821,6 @@
         ["Actif net", K.formatEur(t.net)], ["Part immobilière", K.formatPctVal(t.partImmoPct)],
         ["Taux d'endettement", K.formatPctVal(t.endettementPct)]
       ]));
-      var cap = K.peaCapacity(data.actif);
-      if (cap.hasPEA || cap.hasPME) {
-        var pp = [];
-        if (cap.hasPEA) { pp.push(["PEA — versé / plafond", K.formatEur(cap.versePEA) + " / " + K.formatEur(cap.plafondPEA)]); pp.push(["PEA — versement disponible", K.formatEur(cap.restePEA)]); }
-        if (cap.hasPME) pp.push(["PEA-PME — versé", K.formatEur(cap.versePME)]);
-        pp.push(["PEA/PEA-PME — versement disponible", K.formatEur(cap.resteGlobal) + " / " + K.formatEur(cap.plafondGlobal)]);
-        ca.appendChild(grid("Capacité de versement PEA / PEA-PME", pp));
-      }
       if (data.actif.comment) { ca.appendChild(el("div", "comp-sub", "Commentaire (généré)")); ca.appendChild(el("div", "comp-sentence", data.actif.comment)); }
     }
     var cb = document.getElementById("computed-budget");
@@ -732,7 +832,7 @@
         ["Revenus except.", K.formatEur(bt.totalExcRevenus)], ["Charges except.", K.formatEur(bt.totalExcCharges)],
         ["Budget disponible", K.formatEur(bt.disponible) + "  (" + K.formatPct(bt.disponible, bt.totalRevenus) + ")"],
         ["Capacité d'épargne / mois", K.formatEur(bt.epargneMensuelle)],
-        ["Taux d'endettement (effort)", K.formatPctVal(bt.tauxEffortPct)],
+        ["Taux d'effort", K.formatPctVal(bt.tauxEffortPct)],
         ["Taux de pression fiscale", K.formatPctVal(bt.pressionFiscalePct)]
       ]));
     }
@@ -751,8 +851,10 @@
         var ar = yr(arRaw), docY = yr(data.doc && data.doc.date);
         var donY = (Array.isArray(data.donations) ? data.donations : []).map(function (d) { return yr(d.date); }).filter(function (x) { return x != null; });
         var minDon = donY.length ? Math.min.apply(null, donY) : null;
-        if (ar != null && ((docY != null && ar < docY) || (minDon != null && ar < minDon))) {
-          csu.appendChild(el("div", "comp-sentence", "⚠ L'année de référence saisie (" + arRaw + ") est antérieure à la date du document ou d'une donation. Vérifiez cette saisie : laissez le champ vide pour utiliser automatiquement l'année du document."));
+        if (ar != null && docY != null && ar < docY) {
+          csu.appendChild(el("div", "comp-sentence", "⚠ L'année de référence saisie (" + arRaw + ") est antérieure à la date du document (" + docY + ") : le moteur retient " + docY + " pour le calcul (jamais de millésime antérieur à l'étude). Laissez le champ vide pour la déduire automatiquement."));
+        } else if (ar != null && minDon != null && ar < minDon) {
+          csu.appendChild(el("div", "comp-sentence", "⚠ L'année de référence saisie (" + arRaw + ") est antérieure à la date d'une donation renseignée. Vérifiez cette saisie."));
         }
       })();
       function succBlock(title, sc) {
@@ -804,7 +906,9 @@
 
   function buildModules(modulesState, container, onChange) {
     container.innerHTML = "";
+    var lastCat = null;
     window.HEXA_MODULES.forEach(function (m) {
+      if (m.cat && m.cat !== lastCat) { container.appendChild(el("div", "module-cat", m.cat)); lastCat = m.cat; }
       var lab = el("label", "module-toggle");
       var cb = el("input"); cb.type = "checkbox"; cb.checked = modulesState[m.id] !== false;
       cb.addEventListener("change", function () { modulesState[m.id] = cb.checked; if (onChange) onChange(); });
