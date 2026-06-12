@@ -28,26 +28,15 @@
       advisorCPI: "Transactions sur immeuble et fonds de commerce N°CPI78012026000000016"
     },
 
-    synthese: {
-      diagnostic: [
-        "Endettement très faible (1,6 %) : capacité d'action préservée",
-        "Forte exposition à l'IFI et à la fiscalité des revenus fonciers",
-        "Liquidité limitée et diversification financière insuffisante",
-        "Transmission à anticiper : 2 enfants, biens de valeurs inégales",
-        "Projet de mobilité internationale à sécuriser (exit tax, résidence)"
-      ],
-      recommandations: [
-        { title: "Réduire l'IFI et la fiscalité foncière", detail: "Arbitrer ~900 K€ d'immobilier détenu en direct" },
-        { title: "Préparer la retraite et baisser l'IR", detail: "Alimenter des PER (report de plafonds sur 5 ans)" },
-        { title: "Diversifier l'épargne financière", detail: "FCPR / PEA / PEA-PME / Assurance-vie luxembourgeoise : actions cotées, obligataire coté et non coté, private equity et private debt" },
-        { title: "Organiser la transmission", detail: "Clause bénéficiaire assurance-vie, donations en nue-propriété de parts de SCI" }
-      ]
-    },
+    // AUCUN résultat figé dans ce jeu d'exemple : la synthèse exécutive, le
+    // diagnostic, la cartographie des risques, le commentaire d'actif et l'audit
+    // successoral sont intégralement recalculés par HexaCompute.syncDerived()
+    // à partir des saisies ci-dessous.
 
     foyer: {
       membres: [
-        { qualite: "Monsieur", prenom: "Jean", nom: "X", naissance: "1978-04-15", lieuNaissance: "Paris (75)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Marié(e)s", regime: "Communauté réduite aux acquêts (régime légal)", filiation: "", activitePro: "Salarié(e)", statut: "Cadre", contrat: "CDI" },
-        { qualite: "Madame", prenom: "Marie", nom: "X", naissance: "1970-02-10", lieuNaissance: "Lyon (69)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Marié(e)s", regime: "Communauté réduite aux acquêts (régime légal)", filiation: "", activitePro: "Chef d'entreprise", statut: "Gérante", contrat: "Mandat social" },
+        { qualite: "Monsieur", prenom: "Jean", nom: "X", naissance: "1978-04-15", lieuNaissance: "Paris (75)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Marié(e)s", regime: "Communauté réduite aux acquêts (régime légal)", filiation: "", activitePro: "Salarié(e)", statut: "Cadre", contrat: "CDI", statutFiscal: "Salarié", prevoyanceDeces: "Oui", prevoyanceIncapInval: "Oui" },
+        { qualite: "Madame", prenom: "Marie", nom: "X", naissance: "1970-02-10", lieuNaissance: "Lyon (69)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Marié(e)s", regime: "Communauté réduite aux acquêts (régime légal)", filiation: "", activitePro: "Chef d'entreprise", statut: "Gérante", contrat: "Mandat social", statutFiscal: "TNS (indépendant / gérant majoritaire)", prevoyanceDeces: "Non", prevoyanceIncapInval: "Non" },
         { qualite: "Enfant", prenom: "Paul", nom: "X", naissance: "2003-06-20", lieuNaissance: "Versailles (78)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Célibataire", regime: "", filiation: "Enfant du couple", activitePro: "Étudiant(e)", statut: "", contrat: "" },
         { qualite: "Enfant", prenom: "Léa", nom: "X", naissance: "2005-11-08", lieuNaissance: "Versailles (78)", capacite: "Majeur capable", handicap: "Non", situationMaritale: "Célibataire", regime: "", filiation: "Enfant du couple", activitePro: "Étudiant(e)", statut: "", contrat: "" }
       ],
@@ -59,11 +48,11 @@
 
     actif: {
       immobilier: [
-        { designation: "Maison Maisons-Laffitte", classe: "Résidence principale", type: "Maison", valeur: "550 000", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
-        { designation: "Appartement La Rochelle", classe: "Investissement locatif", type: "Appartement", valeur: "230 000", proprietaire: "Monsieur Jean", quote: "100", droit: "PP", ageUsufruitier: "" },
-        { designation: "Immeuble de rapport Tours", classe: "Investissement locatif", type: "Immeuble de rapport", valeur: "1 794 000", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
-        { designation: "Maison de campagne", classe: "Résidence secondaire", type: "Maison", valeur: "160 000", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
-        { designation: "Terrain (5 rue du Paradis)", classe: "Investissement locatif", type: "Foncier non bâti", valeur: "160 000", proprietaire: "Enfant Paul", quote: "100", droit: "NP", ageUsufruitier: "57" }
+        { designation: "Maison Maisons-Laffitte", classe: "Résidence principale", type: "Maison", valeur: "550 000", dateAcquisition: "2009-05-01", prixAcquisition: "380 000", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
+        { designation: "Appartement La Rochelle", classe: "Investissement locatif", type: "Appartement", valeur: "230 000", dateAcquisition: "2016-09-15", prixAcquisition: "175 000", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Monsieur Jean", quote: "100", droit: "PP", ageUsufruitier: "" },
+        { designation: "Immeuble de rapport Tours", classe: "Investissement locatif", type: "Immeuble de rapport", valeur: "1 794 000", dateAcquisition: "2019-03-20", prixAcquisition: "1 450 000", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
+        { designation: "Maison de campagne", classe: "Résidence secondaire", type: "Maison", valeur: "160 000", dateAcquisition: "2012-07-01", prixAcquisition: "110 000", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" },
+        { designation: "Terrain (5 rue du Paradis)", classe: "Investissement locatif", type: "Foncier non bâti", valeur: "160 000", dateAcquisition: "2021-11-01", prixAcquisition: "150 000", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Enfant Paul", quote: "100", droit: "NP", ageUsufruitier: "57" }
       ],
       autres: [
         { type: "PEA", designation: "PEA", valeur: "150 000", versements: "120 000", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "", assure: "", beneficiaires: "" },
@@ -75,7 +64,7 @@
         { designation: "Prêt immobilier La Rochelle", typeCredit: "Immobilier", rattachement: "Appartement La Rochelle", crd: "40 000", dateFin: "2030-03-31", mensualite: "1 050", taux: "1,15 %" },
         { designation: "Crédit travaux", typeCredit: "Consommation", rattachement: "Autre", crd: "14 900", dateFin: "2027-09-30", mensualite: "427", taux: "2,30 %" }
       ],
-      comment: "Un endettement très limité, un patrimoine très concentré sur l'immobilier et peu de valeurs mobilières."
+      comment: "" // généré automatiquement (assetComment) à chaque recalcul
     },
 
     budget: {
@@ -101,71 +90,15 @@
       note: ""
     },
 
-    diagnostic: {
-      forces: [
-        "Patrimoine conséquent (~3,3 M€)",
-        "Endettement très faible (1,6 %) : marge de manœuvre",
-        "Patrimoine immobilier de rapport générant des revenus réguliers",
-        "Capacité d'épargne mensuelle disponible (~2 000 €)",
-        "Patrimoine professionnel valorisable"
-      ],
-      vigilance: [
-        "Sur-concentration immobilière (81 % de l'actif)",
-        "Assiette IFI alourdie par l'immobilier détenu en direct",
-        "Revenus fonciers fortement fiscalisés (TMI + prélèvements sociaux)",
-        "Liquidité faible",
-        "Diversification financière insuffisante (peu de valeurs mobilières)",
-        "Transmission non encore organisée (risque d'indivision)"
-      ]
-    },
-
-    risques: [
-      { risk: "Concentration immobilière", level: "Élevé", desc: "81 % de l'actif sur une seule classe : risque de liquidité et de marché" },
-      { risk: "Pression fiscale (IFI + IR foncier)", level: "Élevé", desc: "Imposition récurrente du patrimoine et des loyers" },
-      { risk: "Transmission / indivision", level: "Moyen", desc: "2 enfants, biens inégaux : risque de blocage successoral" },
-      { risk: "Liquidité de court terme", level: "Modéré", desc: "Épargne disponible limitée hors actifs immobiliers" },
-      { risk: "Diversification financière", level: "Modéré", desc: "Faible exposition aux marchés financiers" }
-    ],
-
-    succession: {
-      monsieur: {
-        scenarios: [
-          { name: "100 % Usufruit", d1: "156 045 €", d2: "196 840 €" },
-          { name: "1/4 en PP, 3/4 en US", d1: "106 131 €", d2: "373 778 €" },
-          { name: "Quotité disponible", d1: "325 065 €", d2: "439 019 €" }
-        ],
-        observation: "L'option « 100 % Usufruit » est la plus favorable fiscalement : elle minimise le coût total de la succession (353 k€ contre jusqu'à 764 k€)."
-      },
-      madame: {
-        scenarios: [
-          { name: "100 % Usufruit", d1: "75 401 €", d2: "626 180 €" },
-          { name: "1/4 en PP, 3/4 en US", d1: "45 648 €", d2: "745 192 €" },
-          { name: "Quotité disponible", d1: "115 071 €", d2: "784 862 €" }
-        ],
-        observation: "L'option « 100 % Usufruit » est la plus favorable fiscalement (701 k€ contre jusqu'à 900 k€)."
-      },
-      monsieurDon: {
-        scenarios: [
-          { name: "100 % Usufruit", d1: "151 142 €", d2: "161 240 €" },
-          { name: "1/4 en PP, 3/4 en US", d1: "107 516 €", d2: "296 798 €" },
-          { name: "Quotité disponible", d1: "272 308 €", d2: "371 580 €" }
-        ]
-      },
-      madameDon: {
-        scenarios: [
-          { name: "100 % Usufruit", d1: "60 801 €", d2: "540 916 €" },
-          { name: "1/4 en PP, 3/4 en US", d1: "36 298 €", d2: "638 927 €" },
-          { name: "Quotité disponible", d1: "88 138 €", d2: "682 265 €" }
-        ]
-      }
-    },
+    // Situation fiscale (IR informatif / tendance ; la TMI est saisie dans le foyer) et épargne retraite.
+    fiscalite: { revenuImposable: "", irN1: "", irN2: "" },
+    epargneRetraite: { perPlafondMonsieur: { N1: "", N2: "", N3: "", N4: "" }, perPlafondMadame: { N1: "", N2: "", N3: "", N4: "" }, perMutualisation: "Non" },
 
     // Hypothèses du moteur de calcul successoral (les montants ci-dessus sont
     // recalculés automatiquement à partir du patrimoine et de ces paramètres).
     successionParams: {
       assuranceVieHorsSuccession: "Oui",  // Oui : AV traitée hors barème (art. 990 I) ; Non : intégrée à l'assiette
       donationEntreEpoux: "Non",          // DDV (donation au dernier vivant) consentie ? élargit les options du conjoint (clé si enfant non commun)
-      donationPPParParent: "",            // valeur (PP) donnée en nue-propriété par parent ; vide = à hauteur des abattements
       anneeReference: ""                  // année d'évaluation des âges ; vide = déduite de la date du document
     },
 
@@ -175,26 +108,6 @@
       { donateur: "Madame Marie", beneficiaire: "Enfant Léa", valeur: "30 000", type: "Avance successorale (rapportable)", date: "2022-09-01" }
     ],
 
-    donationExamples: [
-      {
-        bien: "Donation NP — 5 rue du Paradis", valeur: "Valeur totale : 400 000 €",
-        rows: [
-          { parent: "Parent 1 — 48 ans", np: "40 %", valeurNP: "80 000 €", abattement: "− 200 000 €", base: "0 €", droits: "0 €" },
-          { parent: "Parent 2 — 56 ans", np: "50 %", valeurNP: "100 000 €", abattement: "− 200 000 €", base: "0 €", droits: "0 €" }
-        ],
-        total: "0 €", reste: "Total abattements restants : 220 000 €"
-      },
-      {
-        bien: "Donation NP — 11 rue Mozart", valeur: "Valeur totale : 205 000 €",
-        rows: [
-          { parent: "Parent 1 — 48 ans", np: "—", valeurNP: "0 €", abattement: "0 €", base: "0 €", droits: "0 €" },
-          { parent: "Parent 2 — 56 ans", np: "50 %", valeurNP: "102 500 €", abattement: "− 200 000 €", base: "0 €", droits: "0 €" }
-        ],
-        total: "0 €", reste: "Total abattements restants : 297 500 €"
-      }
-    ],
-    donationNote: "Deux enfants, plusieurs biens de valeurs inégales. Objectif : éviter l'indivision tout en respectant l'égalité successorale. L'indivision est le pire ennemi de la paix familiale — elle crée des blocages, des conflits de gestion et finit souvent par une vente forcée.",
-
     profilPatrimonial: "Automatique",
     objectifs: [
       { title: "Réduire la pression fiscale", detail: "IFI et fiscalité des revenus fonciers — priorité immédiate" },
@@ -203,41 +116,32 @@
       { title: "Organiser la transmission", detail: "Anticiper la succession, préserver l'équité entre enfants" },
       { title: "Étudier une mobilité internationale", detail: "Sécuriser le cadre fiscal et successoral d'un départ" }
     ],
-    transmission: "Préserver l'équilibre entre les 2 enfants",
 
-    arbitrage: {
-      intro: "Arbitrer une partie de l'immobilier détenu en direct au profit d'une diversification — amélioration du rendement et de la liquidité.",
-      enveloppe: "900 000",
-      current: {
-        rendement: "~3 %",
-        rendementLabel: "rendement net actuel après fiscalité",
-        points: [
-          { label: "Revenus locatifs nets", value: "Réguliers", good: true },
-          { label: "Gestion des biens", value: "Active / contraignante", good: false },
-          { label: "Liquidité", value: "Faible — cession longue", good: false },
-          { label: "Fiscalité des revenus", value: "TMI 30 % + PS 17,2 %", good: false },
-          { label: "IFI", value: "Base imposable alourdie", good: false }
-        ],
-        note: "L'immobilier entre dans l'assiette IFI au-delà de 1,3 M€ de patrimoine net."
-      },
-      strategies: [
-        { title: "PEA / PEA-PME", profil: "Profil équilibré", montant: "200 000", rendement: "~4,5 %", fisc: "PV : 18,6 % après 5 ans · IFI exonéré", accentGold: false },
-        { title: "Assurance-vie luxembourgeoise", profil: "Profil dynamique", montant: "360 000", rendement: "~6 %", fisc: "Après 8 ans : 7,5 / 12,8 % + PS · abattement 9 200 €", accentGold: true },
-        { title: "SCI à l'IS (immeuble de rapport)", profil: "Levier du crédit", montant: "300 000", rendement: "~10 %", fisc: "Apport 300 K€ + 500 K€ crédit · IS 15/25 % · IFI −20 %", accentGold: false },
-        { title: "PER", profil: "Profil équilibré", montant: "10 000", rendement: "~5 %", fisc: "Versements déductibles de l'IR", accentGold: false },
-        { title: "FCPR", profil: "Profil dynamique", montant: "30 000", rendement: "~10 %", fisc: "Exonération d'IR après 5 ans (PS dus)", accentGold: true }
-      ],
-      gain: "~900 K€ arbitrés = 6 266 € d'IFI en moins, 5 400 € d'IR en moins et 3 096 € de CSG/CRDS en moins. Les intérêts capitalisent dans les enveloppes sans frottement fiscal : un rendement comparable, une gestion simplifiée, une exposition IFI et IR fortement réduite."
-    },
+    // Plus-value de cession : forfaits d'acquisition (art. 150 VB) actifs par défaut.
+    pvParams: { forfaits: "Oui" },
 
-    planAction: [
-      { step: "Étape 1", title: "Ouvrir 2 assurances-vie performantes", objectif: "Faire travailler ses liquidités dans un cadre fiscal avantageux, préparer la retraite et la succession", proposition: "Verser 100 000 € sur chaque ASV (taux boosté 2026-2027) et alimenter ~1 000 €/mois" },
-      { step: "Étape 2", title: "Ouvrir 2 PER", objectif: "Réduire sa fiscalité, capitaliser et préparer la retraite", proposition: "Verser ~5 000 € sur chaque PER, vérifier chaque année le montant optimal à verser pour l'IR" },
-      { step: "Étape 3", title: "Vendre 2 biens immobiliers", objectif: "Réduire sa fiscalité, préparer l'avenir", proposition: "Vendre évite la reconstitution d'une plus-value sur les biens hérités plus tard" },
-      { step: "Étape 4", title: "Créer une SCI à l'IS", objectif: "Optimiser la fiscalité des revenus et de la transmission", proposition: "Apporter 300 K€ + emprunt bancaire ; s'entourer d'un avocat fiscaliste, d'un expert-comptable et d'un notaire" },
-      { step: "Étape 5", title: "Donner la NP de parts de la SCI aux enfants", objectif: "Réduire significativement les droits de succession futurs", proposition: "1 an après la création de la SCI ; réitérer les donations 15 ans après" },
-      { step: "Étape 6", title: "Alimenter le CCA avec les nouvelles ventes", objectif: "Augmenter l'actif de la société et le flux des revenus", proposition: "S'assurer que les ASV sont alimentées au maximum des abattements avant 70 ans" }
+    arbitrage: { note: "Sélectionnez les actifs à arbitrer et le montant à dégager ; le total alimente le « disponible après arbitrage ».", montants: { "immo:1": "190 000", "immo:3": "160 000", "autre:0": "80 000" } },
+
+    // Donations envisagées : liste des donations planifiées (donateur + bénéficiaire +
+    // montant). Le coût des droits de chaque donation est calculé automatiquement et
+    // alimente la slide « Stratégie de donation » (exemple seeded sur le capital dégagé).
+    donationsEnvisagees: [
+      { donateur: "Monsieur Jean", beneficiaire: "Enfant Paul", montant: "140 000" },
+      { donateur: "Madame Marie", beneficiaire: "Enfant Léa", montant: "140 000" }
     ],
+
+    // Réinvestissement par enveloppe : allocation du capital dégagé par l'arbitrage,
+    // net des donations envisagées, vers des supports d'investissement cibles.
+    // Saisie de démo calibrée sur le capital NET à allouer (brut 430 000 − impôt de
+    // plus-value ≈ 10 449 − donations 280 000) pour un reste à 0.
+    reinvestissements: [
+      { enveloppe: "Assurance-vie luxembourgeoise", montant: "100 000" },
+      { enveloppe: "PER", montant: "39 551" }
+    ],
+
+    // Plan d'action : AUCUNE étape figée — la feuille de route est générée par
+    // HexaCompute.feuilleDeRoute() depuis les arbitrages, donations envisagées
+    // et réinvestissements saisis ci-dessus.
 
     contexte: {
       intro: "Lors de nos premiers échanges, nous avons passé en revue vos objectifs patrimoniaux et en avons établi l'ordre de priorité. Vous trouverez ci-après une synthèse de l'étude patrimoniale, assortie de pistes d'optimisation appuyées par des projections chiffrées.",
@@ -272,7 +176,7 @@
         ["Personne handicapée", "159 325 €", "Cumulable"]
       ],
       don: ["Don familial de somme d'argent", "31 865 €", "Donateur < 80 ans, bénéficiaire majeur — tous les 15 ans"],
-      note: "Chaque parent peut transmettre dès aujourd'hui jusqu'à 131 865 € à chaque enfant en franchise de droits, en cumulant deux dispositifs : l'abattement de droit commun de 100 000 € (art. 779 CGI), valable pour tout type de bien, et le don familial de somme d'argent de 31 865 € (art. 790 G CGI), réservé aux dons d'argent. Soit, pour un couple avec deux enfants, jusqu'à 527 460 € au total. Ces abattements se reconstituent tous les 15 ans."
+      note: "Chaque parent peut transmettre dès aujourd'hui jusqu'à 131 865 € à chaque enfant en franchise de droits, en cumulant deux dispositifs : l'abattement de droit commun de 100 000 € (art. 779 CGI), valable pour tout type de bien, et le don familial de somme d'argent de 31 865 € (art. 790 G CGI), réservé aux dons d'argent. La capacité réellement disponible est calculée dans le tableau « Capacité de donation en franchise », nette des donations de moins de 15 ans déjà consenties (art. 784 CGI). Ces abattements se reconstituent tous les 15 ans."
     },
 
     demembrement: {
@@ -333,14 +237,15 @@
       entree: [
         "Vos versements volontaires sont déduits de votre revenu imposable, réduisant l'impôt immédiat.",
         "Plafond salarié 2026 : 4 710 € à 37 680 € (10 % des revenus nets).",
-        "Plafond TNS 2026 : jusqu'à 88 911 € (calcul spécifique sur le bénéfice)."
+        "Le cas échéant, pour un travailleur non salarié (TNS) : plafond spécifique pouvant atteindre 88 911 € (calcul sur le bénéfice)."
       ],
       sortie: [
         "Si versements DÉDUITS — Capital : imposé au barème IR (sans abattement 10 %), gains au PFU 31,4 %. Rente : imposée comme pension (abattement 10 %) + PS.",
         "Si versements NON DÉDUITS — Capital : exonéré, seuls les gains taxés au PFU 31,4 %. Rente : fiscalité allégée (RVTO) selon l'âge.",
         "PFU = Prélèvement Forfaitaire Unique (12,8 % IR + 18,6 % PS)."
-      ],
-      reco: { avant: "8,15 %", apres: "5 %", eco: "2 835 €", note: "Piloter chaque année les versements pour « raboter » la tranche à 30 %. Chiffres à actualiser à la réception de l'avis d'imposition 2026." }
+      ]
+      // Pas de « reco » chiffrée en dur : le bandeau d'économie d'IR de la diapo
+      // PER est calculé depuis les plafonds saisis (épargne retraite) × TMI du foyer.
     },
 
     av: {
@@ -356,7 +261,7 @@
         { title: "Neutralité fiscale (Luxembourg)", body: "Ni impôt ni retenue à la source au Luxembourg. Pour un résident français, c'est la fiscalité française de l'assurance vie qui s'applique." },
         { title: "Rachats (< 8 ans)", body: "Seule la part de gains du retrait est imposée : PFU de 12,8 % d'IR, ou sur option le barème progressif de l'IR." },
         { title: "Rachats après 8 ans", body: "Abattement annuel de 4 600 € (9 200 € pour un couple). Au-delà : 7,5 % jusqu'à 150 000 € de versements, 12,8 % au-delà." },
-        { title: "Prélèvements sociaux", body: "Prélevés sur les gains lors des rachats, et au fil de l'eau sur le fonds en euros." },
+        { title: "Prélèvements sociaux", body: "17,2 % sur les gains (assurance-vie exclue de la hausse LFSS 2026 ; les autres enveloppes sont à 18,6 %), lors des rachats et au fil de l'eau sur le fonds en euros." },
         { title: "Transmission avant 70 ans", body: "Art. 990 I CGI : abattement de 152 500 € par bénéficiaire, puis 20 % jusqu'à 700 000 € et 31,25 % au-delà." },
         { title: "Après 70 ans & portabilité", body: "Art. 757 B : abattement global de 30 500 € sur les primes, puis droits de succession. Fiscalité portable en cas d'expatriation." }
       ],
@@ -372,6 +277,23 @@
       ],
       avant70: { article: "Article 990 I du CGI", abattement: "152 500 €", abattementNote: "par bénéficiaire désigné, renouvelable", bareme: "20 % jusqu'à 700 000 € (après abattement), 31,25 % au-delà. Intérêts capitalisés exonérés." },
       apres70: { article: "Article 757 B du CGI", abattement: "30 500 €", abattementNote: "global, partagé entre tous les bénéficiaires", bareme: "Réintégration dans l'actif successoral. Seules les primes versées sont taxées ; les intérêts générés restent exonérés." }
+    },
+    avFr: {
+      fonctionnement: [
+        { title: "Accessibilité", body: "Ouverte à tous, sans plafond légal : versements libres ou programmés dès quelques centaines d'euros." },
+        { title: "Supports", body: "Fonds en euros à capital garanti et unités de compte (actions, obligations, SCPI, ETF…). Gestion libre ou pilotée." },
+        { title: "Garantie des dépôts", body: "Capitaux garantis par le FGAP jusqu'à 70 000 € par assuré et par compagnie d'assurance." },
+        { title: "Rachats & liquidité", body: "Épargne disponible à tout moment (rachats partiels ou totaux) ; avances possibles sans désinvestir." },
+        { title: "Cadre « Sapin 2 »", body: "Blocage temporaire des rachats possible sur décision du HCSF en cas de crise systémique grave." },
+        { title: "Profil & usage", body: "Épargne de précaution, financement de projets, préparation de la retraite et transmission." }
+      ],
+      fiscalite: [
+        { title: "Rachats avant 8 ans", body: "Seule la part de gains du retrait est imposée : PFU de 12,8 % d'IR, ou sur option le barème progressif de l'IR." },
+        { title: "Rachats après 8 ans", body: "Abattement annuel de 4 600 € (9 200 € pour un couple) ; au-delà : 7,5 % jusqu'à 150 000 € de versements, 12,8 % ensuite." },
+        { title: "Prélèvements sociaux", body: "17,2 % sur les gains (assurance-vie exclue de la hausse LFSS 2026 ; les autres enveloppes sont à 18,6 %)." },
+        { title: "Transmission avant 70 ans (art. 990 I)", body: "Abattement de 152 500 € par bénéficiaire, puis 20 % jusqu'à 700 000 €, 31,25 % au-delà." },
+        { title: "Après 70 ans (art. 757 B)", body: "Abattement global de 30 500 € sur les primes versées ; les intérêts générés restent exonérés." }
+      ]
     },
 
     scpi: {
@@ -514,17 +436,20 @@
   // 3) MODULES ACTIVABLES (cases à cocher dans le formulaire)
   // ==========================================================================
   var HEXA_MODULES = [
-    { id: "methodologie", label: "Méthodologie & périmètre de l'audit", def: true },
-    { id: "contexte", label: "Contexte de rendez-vous & avertissement", def: true },
-    { id: "successoral", label: "Pédagogie successorale (abattements, démembrement, barème, stratégies)", def: true },
-    { id: "per", label: "Plan Épargne Retraite (PER)", def: true },
-    { id: "assuranceVie", label: "Assurance-vie (dont luxembourgeoise)", def: true },
-    { id: "scpi", label: "SCPI", def: true },
-    { id: "pea", label: "PEA", def: true },
-    { id: "peapme", label: "PEA-PME", def: true },
-    { id: "fcpr", label: "FCPR (capital-investissement)", def: true },
-    { id: "sciIs", label: "Immeuble de rapport en SCI à l'IS", def: true },
-    { id: "suivi", label: "Suivi & prochaines étapes", def: true }
+    // Cadre & pédagogie
+    { id: "methodologie", label: "Méthodologie & périmètre de l'audit", def: true, cat: "Cadre & pédagogie" },
+    { id: "contexte", label: "Contexte de rendez-vous & avertissement", def: true, cat: "Cadre & pédagogie" },
+    { id: "successoral", label: "Pédagogie successorale (abattements, démembrement, barème, stratégies)", def: true, cat: "Cadre & pédagogie" },
+    { id: "suivi", label: "Suivi & prochaines étapes", def: true, cat: "Cadre & pédagogie" },
+    // Contenants (enveloppes & supports où loger l'épargne)
+    { id: "assuranceVie", label: "Assurance-vie française", def: true, cat: "Contenants" },
+    { id: "assuranceVieLux", label: "Assurance-vie luxembourgeoise", def: true, cat: "Contenants" },
+    { id: "scpi", label: "SCPI", def: true, cat: "Contenants" },
+    { id: "pea", label: "PEA", def: true, cat: "Contenants" },
+    { id: "peapme", label: "PEA-PME", def: true, cat: "Contenants" },
+    { id: "fcpr", label: "FCPR (capital-investissement)", def: true, cat: "Contenants" },
+    { id: "sciIs", label: "Immeuble de rapport en SCI à l'IS", def: true, cat: "Contenants" },
+    { id: "per", label: "Plan Épargne Retraite (PER)", def: true, cat: "Contenants" }
   ];
 
   window.HEXA_DEFAULT = HEXA_DEFAULT;
