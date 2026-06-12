@@ -124,8 +124,7 @@
     HEXA.rule(s, 0, 0, HEXA.PAGE.W, 0.16, C.GOLD);
     HEXA.rule(s, 0, HEXA.PAGE.H - 0.16, HEXA.PAGE.W, 0.16, C.GOLD);
     HEXA.logoTopRight(s, { dark: true });
-    s.addText("ÉTUDE PATRIMONIALE", { x: 1, y: 2.7, w: 11.3, h: 0.45, align: "center", fontFace: F.HEAD, fontSize: 15, bold: true, color: C.GOLD, charSpacing: 4 });
-    s.addText(data.doc.title, { x: 1, y: 3.1, w: 11.3, h: 1.1, align: "center", fontFace: F.HEAD, fontSize: 46, bold: true, color: "FFFFFF" });
+    s.addText(data.doc.title, { x: 1, y: 2.9, w: 11.3, h: 1.1, align: "center", fontFace: F.HEAD, fontSize: 46, bold: true, color: "FFFFFF" });
     s.addShape("rect", { x: HEXA.PAGE.W / 2 - 0.9, y: 4.28, w: 1.8, h: 0.045, fill: { color: C.GOLD }, line: { type: "none" } });
     s.addText(data.doc.client, { x: 1, y: 4.5, w: 11.3, h: 0.7, align: "center", fontFace: F.SERIF, fontSize: 28, italic: true, color: "FFFFFF" });
     s.addText(data.doc.date, { x: 1, y: 5.3, w: 11.3, h: 0.5, align: "center", fontFace: F.HEAD, fontSize: 16, color: C.TEAL_PALE, charSpacing: 2 });
@@ -198,20 +197,32 @@
   function synthese(pptx, data) {
     var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Synthèse exécutive", title: "L'essentiel du diagnostic et des recommandations" });
     var gap = 0.3, w = (o.body.w - gap) / 2;
+    // Bandeau « données manquantes » en tête de synthèse (uniquement si nécessaire) :
+    // liste les saisies absentes qui faussent les chiffres (âge usufruitier, prix d'acquisition).
+    var manque = K.donneesManquantes ? K.donneesManquantes(data) : [];
+    var warnH = manque.length ? 0.55 : 0;
+    var by = o.body.y + (warnH ? warnH + 0.12 : 0), bh = o.body.h - (warnH ? warnH + 0.12 : 0);
+    if (manque.length) {
+      HEXA.card(o.slide, o.body.x, o.body.y, o.body.w, warnH, { fill: "FBF7EA", line: C.GOLD, lineW: 1.2, shadow: false });
+      o.slide.addText([
+        { text: "⚠ Données à compléter — chiffres impactés :  ", options: { fontFace: F.HEAD, fontSize: 9.5, bold: true, color: C.GOLD_DK } },
+        { text: manque.join("   ·   "), options: { fontFace: F.BODY, fontSize: 8.4, color: C.SLATE } }
+      ], { x: o.body.x + 0.2, y: o.body.y, w: o.body.w - 0.4, h: warnH, valign: "middle", lineSpacingMultiple: 1.0 });
+    }
     // Diagnostic
-    HEXA.card(o.slide, o.body.x, o.body.y, w, o.body.h, { fill: C.MIST, line: C.LINE });
-    o.slide.addShape("roundRect", { x: o.body.x, y: o.body.y, w: w, h: 0.6, fill: { color: C.PETROL }, line: { type: "none" }, rectRadius: 0.09 });
-    o.slide.addShape("rect", { x: o.body.x, y: o.body.y + 0.38, w: w, h: 0.22, fill: { color: C.PETROL }, line: { type: "none" } });
-    o.slide.addText("Diagnostic en bref", { x: o.body.x + 0.25, y: o.body.y, w: w - 0.5, h: 0.6, fontFace: F.HEAD, fontSize: 15, bold: true, color: "FFFFFF", valign: "middle" });
+    HEXA.card(o.slide, o.body.x, by, w, bh, { fill: C.MIST, line: C.LINE });
+    o.slide.addShape("roundRect", { x: o.body.x, y: by, w: w, h: 0.6, fill: { color: C.PETROL }, line: { type: "none" }, rectRadius: 0.09 });
+    o.slide.addShape("rect", { x: o.body.x, y: by + 0.38, w: w, h: 0.22, fill: { color: C.PETROL }, line: { type: "none" } });
+    o.slide.addText("Diagnostic en bref", { x: o.body.x + 0.25, y: by, w: w - 0.5, h: 0.6, fontFace: F.HEAD, fontSize: 15, bold: true, color: "FFFFFF", valign: "middle" });
     var diag = [K.patrimoineBullet(data)].concat(data.synthese.diagnostic || []);
-    markerList(o.slide, { x: o.body.x + 0.3, y: o.body.y + 0.8, w: w - 0.6, h: o.body.h - 1.0 }, diag, "▸", C.PETROL_LT, { size: 11.5, gap: 9 });
+    markerList(o.slide, { x: o.body.x + 0.3, y: by + 0.8, w: w - 0.6, h: bh - 1.0 }, diag, "▸", C.PETROL_LT, { size: 11.5, gap: 9 });
     // Recommandations
     var rx = o.body.x + w + gap;
-    HEXA.card(o.slide, rx, o.body.y, w, o.body.h, { fill: "FBF7EA", line: C.GOLD, lineW: 1.2 });
-    o.slide.addShape("roundRect", { x: rx, y: o.body.y, w: w, h: 0.6, fill: { color: C.GOLD_DK }, line: { type: "none" }, rectRadius: 0.09 });
-    o.slide.addShape("rect", { x: rx, y: o.body.y + 0.38, w: w, h: 0.22, fill: { color: C.GOLD_DK }, line: { type: "none" } });
-    o.slide.addText("Recommandations clés", { x: rx + 0.25, y: o.body.y, w: w - 0.5, h: 0.6, fontFace: F.HEAD, fontSize: 15, bold: true, color: "FFFFFF", valign: "middle" });
-    var ry = o.body.y + 0.82, rh = (o.body.h - 0.95) / data.synthese.recommandations.length;
+    HEXA.card(o.slide, rx, by, w, bh, { fill: "FBF7EA", line: C.GOLD, lineW: 1.2 });
+    o.slide.addShape("roundRect", { x: rx, y: by, w: w, h: 0.6, fill: { color: C.GOLD_DK }, line: { type: "none" }, rectRadius: 0.09 });
+    o.slide.addShape("rect", { x: rx, y: by + 0.38, w: w, h: 0.22, fill: { color: C.GOLD_DK }, line: { type: "none" } });
+    o.slide.addText("Recommandations clés", { x: rx + 0.25, y: by, w: w - 0.5, h: 0.6, fontFace: F.HEAD, fontSize: 15, bold: true, color: "FFFFFF", valign: "middle" });
+    var ry = by + 0.82, rh = (bh - 0.95) / data.synthese.recommandations.length;
     data.synthese.recommandations.forEach(function (rec, i) {
       var yy = ry + i * rh;
       numberBadge(o.slide, rx + 0.3, yy + 0.06, 0.4, i + 1, C.GOLD_DK);
@@ -265,7 +276,7 @@
 
   function actif(pptx, data) {
     var o = HEXA.standardSlide(pptx, { page: page(), kicker: "1 · Découverte", title: "Composition du patrimoine brut consolidé" });
-    var a = data.actif, t = K.assetTotals(a);
+    var a = data.actif, t = K.assetTotals(a, data); // périmètre couple (hors actifs des enfants)
     // KPIs entièrement calculés (brut, passif, net, part immobilière, endettement)
     var kpis = [
       { v: K.formatEur(t.brut), l: "Actif brut", fill: C.PETROL },
@@ -320,24 +331,38 @@
 
   function immobilierSlide(pptx, data) {
     var o = HEXA.standardSlide(pptx, { page: page(), kicker: "1 · Découverte", title: "Patrimoine immobilier" });
-    var im = (data.actif && data.actif.immobilier) || [], bw = o.body.w;
+    var im = (data.actif && data.actif.immobilier) || [], passifs = (data.actif && data.actif.passifs) || [], bw = o.body.w;
     function droitTxt(a) { return a.droit === "NP" && a.ageUsufruitier ? "NP (usuf. " + a.ageUsufruitier + " ans)" : (a.droit || "PP"); }
-    var total = 0; im.forEach(function (a) { total += K.parseNum(a.valeur); });
+    // Encours de crédit (CRD) + dernière échéance rattachés à un bien (passif.rattachement = désignation du bien).
+    function creditFor(designation) {
+      var crd = 0, fin = "";
+      if (designation) passifs.forEach(function (p) {
+        if ((p.rattachement || "") === designation) {
+          crd += K.parseNum(p.crd);
+          if (p.dateFin && p.dateFin > fin) fin = p.dateFin; // dates ISO : comparaison lexicale = chronologique
+        }
+      });
+      return { crd: crd, fin: fin };
+    }
+    var total = 0, totalCRD = 0;
     var rows = im.map(function (a) {
-      return [a.designation || "—", a.classe || "", a.type || "", K.formatEur(K.parseNum(a.valeur)), a.proprietaire || "", (a.quote ? a.quote + " %" : ""), droitTxt(a)];
+      var v = K.valeurFiscale(a), cr = creditFor(a.designation); total += v; totalCRD += cr.crd;
+      return [a.designation || "—", a.classe || "", a.type || "", K.formatEur(v),
+        cr.crd > 0 ? K.formatEur(cr.crd) : "—", (cr.crd > 0 && cr.fin) ? K.formatDateFR(cr.fin) : "—",
+        a.proprietaire || "", (a.quote ? a.quote + " %" : ""), droitTxt(a)];
     });
-    rows.push(["TOTAL IMMOBILIER", "", "", K.formatEur(total), "", "", ""]);
+    rows.push(["TOTAL IMMOBILIER", "", "", K.formatEur(total), totalCRD > 0 ? K.formatEur(totalCRD) : "—", "", "", "", ""]);
     dataTable(o.slide, {
       x: o.body.x, y: o.body.y, w: bw,
-      headers: ["Désignation", "Classe", "Type", "Valeur", "Propriétaire", "Quote-part", "Droit"],
-      colW: [bw * 0.20, bw * 0.14, bw * 0.13, bw * 0.13, bw * 0.15, bw * 0.12, bw * 0.13],
-      align: ["left", "left", "left", "right", "left", "center", "center"],
-      rows: rows, totalRows: [rows.length - 1], boldCols: [0], rowH: 0.46, size: 10, headSize: 9.5
+      headers: ["Désignation", "Classe", "Type", "Valeur", "Encours crédit", "Fin de crédit", "Propriétaire", "Quote-part", "Droit"],
+      colW: [bw * 0.17, bw * 0.12, bw * 0.11, bw * 0.11, bw * 0.11, bw * 0.10, bw * 0.13, bw * 0.08, bw * 0.07],
+      align: ["left", "left", "left", "right", "right", "center", "left", "center", "center"],
+      rows: rows, totalRows: [rows.length - 1], boldCols: [0], rowH: 0.46, size: 9.5, headSize: 9
     });
     var ny = o.body.y + (rows.length + 1) * 0.46 + 0.3;
     HEXA.card(o.slide, o.body.x, ny, o.body.w, 0.95, { fill: C.TEAL_PALE, line: null });
     o.slide.addText("Lecture des droits", { x: o.body.x + 0.25, y: ny + 0.1, w: o.body.w - 0.5, h: 0.3, fontFace: F.HEAD, fontSize: 11.5, bold: true, color: C.PETROL });
-    o.slide.addText("PP = pleine propriété · NP = nue-propriété · UF = usufruit. En cas de démembrement (NP), l'âge de l'usufruitier conditionne la valeur fiscale de la nue-propriété (barème de l'article 669 du CGI).", { x: o.body.x + 0.25, y: ny + 0.42, w: o.body.w - 0.5, h: 0.5, fontFace: F.BODY, fontSize: 10, color: C.SLATE, valign: "top", lineSpacingMultiple: 1.05 });
+    o.slide.addText("PP = pleine propriété · NP = nue-propriété · UF = usufruit. En cas de démembrement (NP), l'âge de l'usufruitier conditionne la valeur fiscale de la nue-propriété (barème de l'article 669 du CGI). Encours crédit = capital restant dû (CRD) du/des prêt(s) rattaché(s) au bien ; « Fin de crédit » = dernière échéance.", { x: o.body.x + 0.25, y: ny + 0.42, w: o.body.w - 0.5, h: 0.5, fontFace: F.BODY, fontSize: 9.5, color: C.SLATE, valign: "top", lineSpacingMultiple: 1.03 });
   }
 
   function budget(pptx, data) {
@@ -348,7 +373,9 @@
     function pctOf(amount) { return rev ? K.formatPct(amount, rev) : "—"; }
     // --- Revenus : matrice (colonnes = personnes ayant un revenu) ---
     var persons = K.personLabels(data), lines = b.revenus || [];
-    var active = persons; // toutes les personnes du foyer (+ Foyer), y compris les membres sans revenu
+    // Colonnes = personnes courantes, dédupliquées (deux membres au même libellé ne créent
+    // qu'une colonne) afin que la somme des colonnes égale le total de chaque ligne.
+    var _seen = {}, active = persons.filter(function (p) { if (_seen[p]) return false; _seen[p] = 1; return true; });
     var rHead = ["Revenu"].concat(active).concat(["Total"]);
     var rRows = lines.map(function (l) {
       return [l.poste + (l.libelle ? " — " + l.libelle : "")]
@@ -395,7 +422,7 @@
     // d'anciens chiffres erronés, et non un commentaire qualitatif).
     var autoNote = "Revenus " + K.formatEur(bt.totalRevenus) + "   ·   Charges " + K.formatEur(bt.totalCharges)
       + "   ·   Disponible " + K.formatEur(bt.disponible) + " (" + K.formatPct(bt.disponible, bt.totalRevenus) + ")"
-      + "   ·   Taux d'endettement " + K.formatPctVal(bt.tauxEffortPct)
+      + "   ·   Taux d'effort " + K.formatPctVal(bt.tauxEffortPct)
       + "   ·   Pression fiscale " + K.formatPctVal(bt.pressionFiscalePct) + ".";
     o.slide.addText(autoNote, { x: o.body.x, y: ny, w: bw, h: Math.min(0.3, HEXA.FOOT_Y - ny - 0.06), fontFace: F.BODY, fontSize: 9, italic: true, color: C.SLATE_LT, valign: "top", lineSpacingMultiple: 1.04 });
   }
@@ -452,34 +479,6 @@
       + (det.assuranceVieHorsSuccession === false ? "assurance-vie intégrée à l'assiette" : "assurance-vie hors succession (art. 990 I)")
       + " ; abattement 100 000 €/enfant/parent (art. 779) ; barème ligne directe 2026.";
     o.slide.addText(hypo, { x: o.body.x, y: HEXA.FOOT_Y - 0.42, w: o.body.w, h: 0.3, fontFace: F.BODY, fontSize: 9, italic: true, color: C.SLATE_LT });
-  }
-
-  function successionCompare(pptx, data) {
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "2.1 · Audit successoral", title: "Impact des donations de nue-propriété" });
-    var gap = 0.3, w = (o.body.w - gap) / 2, su = data.succession;
-    [[o.body.x, su.monsieurDon, su.monsieur, "Si Monsieur décède en premier — avec donation NP"],
-     [o.body.x + w + gap, su.madameDon, su.madame, "Si Madame décède en premier — avec donation NP"]].forEach(function (pair) {
-      var x = pair[0], sc = pair[1], base = pair[2], stitle = pair[3];
-      o.slide.addText(stitle, { x: x, y: o.body.y, w: w, h: 0.4, fontFace: F.HEAD, fontSize: 13, bold: true, color: C.PETROL });
-      var rows = sc.scenarios.map(function (s, i) {
-        var gain = K.donationGain(base.scenarios, s, i);
-        return [s.name, K.formatEur(K.scenarioTotal(s)), gain == null ? "—" : K.formatEurSigned(gain)];
-      });
-      dataTable(o.slide, {
-        x: x, y: o.body.y + 0.5, w: w, headers: ["Scénario", "TOTAL", "Gain"],
-        colW: [w - 3.2, 1.9, 1.3], align: ["left", "right", "right"], rows: rows, deltaCol: 2, boldCols: [2], rowH: 0.62, size: 11, headSize: 10.5
-      });
-    });
-    var maxSaving = 0;
-    [[su.monsieurDon, su.monsieur], [su.madameDon, su.madame]].forEach(function (p) {
-      p[0].scenarios.forEach(function (s, i) { var g = K.donationGain(p[1].scenarios, s, i); if (g != null && -g > maxSaving) maxSaving = -g; });
-    });
-    var msg = maxSaving > 0
-      ? "La donation en nue-propriété réduit le coût successoral global (gain jusqu'à ~" + Math.round(maxSaving / 1000) + " k€ selon le scénario)."
-      : "L'impact d'une donation en nue-propriété dépend du scénario retenu (voir les écarts ci-dessus).";
-    var ny = o.body.y + 0.5 + 4 * 0.62 + 0.25;
-    HEXA.card(o.slide, o.body.x, ny, o.body.w, o.body.h - (ny - o.body.y) - 0.1, { fill: C.GREEN_BG, line: null });
-    o.slide.addText(msg, { x: o.body.x + 0.3, y: ny + 0.1, w: o.body.w - 0.6, h: o.body.h - (ny - o.body.y) - 0.3, fontFace: F.BODY, fontSize: 12, color: C.GREEN, valign: "middle", bold: true });
   }
 
   // Schéma : réserve héréditaire & quotité disponible selon la situation du client.
@@ -539,15 +538,163 @@
     ], { x: o.body.x + 0.3, y: ry + 0.12, w: o.body.w - 0.6, h: rh - 0.24, valign: "top", lineSpacingMultiple: 1.08 });
   }
 
-  // Donations consenties & suivi du délai des 15 ans (slide conditionnelle).
-  function donationsSlide(pptx, data) {
-    var suivi = (window.HexaSuccession && window.HexaSuccession.donationsSuivi) ? window.HexaSuccession.donationsSuivi(data) : [];
-    if (!suivi.length) return;
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "2.1 · Audit successoral", title: "Donations consenties & délai des 15 ans" });
+  // Stratégie de donation : liste des donations envisagées (donateur + bénéficiaire +
+  // montant), avec pour chacune l'abattement disponible (selon le lien) et le coût des
+  // droits estimé au barème en ligne directe sur la part excédentaire.
+  function donationStrategieSlide(pptx, data) {
+    var ds = window.HexaCompute.donationStrategie(data);
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "4 · Préconisations", title: "Stratégie de donation" });
     var w = o.body.w;
-    var rows = suivi.map(function (s) { return [s.donateur, s.beneficiaire, K.formatEur(s.valeur), s.type, K.formatDateFR(s.date), s.statut]; });
-    dataTable(o.slide, { x: o.body.x, y: o.body.y, w: w, headers: ["Donateur", "Bénéficiaire", "Valeur", "Type", "Date", "Délai des 15 ans"], colW: [w * 0.14, w * 0.13, w * 0.11, w * 0.20, w * 0.12, w * 0.30], align: ["left", "left", "right", "left", "center", "left"], rows: rows, rowH: 0.55, size: 10.5, headSize: 10.5 });
-    o.slide.addText("Rappel fiscal (art. 784 CGI) : une donation de moins de 15 ans réduit l'abattement disponible au décès ; au-delà de 15 ans, l'abattement de 100 000 €/enfant/parent se reconstitue intégralement.", { x: o.body.x, y: HEXA.FOOT_Y - 0.5, w: o.body.w, h: 0.4, fontFace: F.BODY, fontSize: 9.5, italic: true, color: C.SLATE_LT, valign: "top", lineSpacingMultiple: 1.05 });
+    o.slide.addText([
+      { text: "Capital dégagé par l'arbitrage : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } },
+      { text: K.formatEur(ds.disponibleApres) + "   ·   ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } },
+      { text: "Donations envisagées : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } },
+      { text: K.formatEur(ds.totalMontant) + ".", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } }
+    ], { x: o.body.x, y: o.body.y, w: w, h: 0.4, valign: "top", lineSpacingMultiple: 1.05 });
+
+    if (ds.lignes.length === 0) {
+      o.slide.addText("Aucune donation envisagée renseignée.", { x: o.body.x, y: o.body.y + 0.9, w: w, h: 0.5, align: "center", fontFace: F.BODY, fontSize: 13, italic: true, color: C.SLATE_LT, valign: "middle" });
+      return;
+    }
+
+    var tY = o.body.y + 0.5;
+    var rows = ds.lignes.map(function (l) {
+      return [l.donateur, l.beneficiaire + (l.beneficiaireMineur ? " ⚠" : ""), l.lien, K.formatEur(l.montant), K.formatEur(l.abattement), K.formatEur(l.enFranchise), K.formatEur(l.droits)];
+    });
+    // Bandeau bas réservé ; hauteur de ligne adaptative comme « Actifs à arbitrer ».
+    var bh = 0.7, by = HEXA.FOOT_Y - bh - 0.55;
+    var availH = by - tY - 0.12;
+    var rowH = Math.max(0.3, Math.min(0.46, availH / (rows.length + 1)));
+    dataTable(o.slide, {
+      x: o.body.x, y: tY, w: w,
+      headers: ["Donateur", "Bénéficiaire", "Lien", "Montant", "Abattement disp.", "En franchise", "Coût (droits)"],
+      colW: [w * 0.19, w * 0.19, w * 0.12, w * 0.125, w * 0.135, w * 0.125, w * 0.115],
+      align: ["left", "left", "center", "right", "right", "right", "right"],
+      rows: rows, rowH: rowH, size: rowH < 0.4 ? 9 : 10, headSize: 9
+    });
+
+    HEXA.card(o.slide, o.body.x, by, w, bh, { fill: C.PETROL, line: null });
+    o.slide.addText([
+      { text: "Total donné : " + K.formatEur(ds.totalMontant) + "   ·   En franchise : " + K.formatEur(ds.totalFranchise) + "   ·   Coût total des droits : ", options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: "FFFFFF" } },
+      { text: K.formatEur(ds.totalDroits), options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: C.GOLD } }
+    ], { x: o.body.x + 0.3, y: by, w: w - 0.6, h: bh, valign: "middle", lineSpacingMultiple: 1.05 });
+
+    // Alerte civile rattachée aux lignes « bénéficiaire mineur » (⚠ dans le tableau).
+    if (ds.beneficiairesMineurs && ds.beneficiairesMineurs.length) {
+      var wy = tY + (rows.length + 1) * rowH + 0.05;
+      o.slide.addText("⚠ " + ds.beneficiairesMineurs.join(", ") + " — " + (K.ALERTE_DONATION_MINEUR || ""), { x: o.body.x, y: Math.min(wy, by - 0.5), w: w, h: 0.46, fontFace: F.BODY, fontSize: 8.3, italic: true, color: C.GOLD_DK, valign: "top", lineSpacingMultiple: 1.02 });
+    }
+    o.slide.addText("Le coût est estimé au barème en ligne directe sur la part dépassant l'abattement disponible (100 000 € + don manuel 31 865 € par enfant et par parent ; 80 724 € entre époux), net des donations de moins de 15 ans. Abattements reconstitués tous les 15 ans.", { x: o.body.x, y: HEXA.FOOT_Y - 0.42, w: w, h: 0.38, fontFace: F.BODY, fontSize: 8.5, italic: true, color: C.SLATE_LT, valign: "top", lineSpacingMultiple: 1.03 });
+  }
+
+  // Réinvestissement du capital dégagé : allocation indicative par enveloppe cible du
+  // capital dégagé par l'arbitrage, net des donations envisagées (HexaCompute.reinvestTotals).
+  function reinvestissementSlide(pptx, data) {
+    var rt = window.HexaCompute.reinvestTotals(data);
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "4 · Préconisations", title: "Réinvestissement du capital dégagé" });
+    var w = o.body.w;
+    var bandeau = [
+      { text: "Capital dégagé (brut) : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } },
+      { text: K.formatEur(rt.disponible) + "   ·   ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } }
+    ];
+    if (rt.impotPV > 0) {
+      bandeau.push({ text: "Fiscalité de cession : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } });
+      bandeau.push({ text: "−" + K.formatEur(rt.impotPV) + "   ·   ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } });
+      bandeau.push({ text: "Capital net : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } });
+      bandeau.push({ text: K.formatEur(rt.disponibleNet) + "   ·   ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } });
+    }
+    bandeau.push({ text: "Donations : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } });
+    bandeau.push({ text: K.formatEur(rt.donne) + "   ·   ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } });
+    bandeau.push({ text: "À réinvestir : ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.PETROL } });
+    bandeau.push({ text: K.formatEur(rt.aAllouer) + ".", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD_DK } });
+    if (rt.pvNonChiffree) bandeau.push({ text: "   ⚠ Capital net sous réserve de la fiscalité de cession non chiffrée.", options: { fontFace: F.BODY, fontSize: 9, italic: true, color: C.GOLD_DK } });
+    o.slide.addText(bandeau, { x: o.body.x, y: o.body.y, w: w, h: 0.4, valign: "top", lineSpacingMultiple: 1.05 });
+
+    if (rt.parEnveloppe.length === 0) {
+      o.slide.addText("Aucun réinvestissement renseigné.", { x: o.body.x, y: o.body.y + 0.9, w: w, h: 0.5, align: "center", fontFace: F.BODY, fontSize: 13, italic: true, color: C.SLATE_LT, valign: "middle" });
+      return;
+    }
+
+    var tY = o.body.y + 0.5;
+    // Pourcentages d'allocation à somme conservée (méthode du plus grand reste) : la somme
+    // des parts affichées vaut exactement 100 % (et non 99/101 % dû aux arrondis indépendants).
+    var shown = rt.parEnveloppe.reduce(function (s, e) { return s + e.montant; }, 0);
+    var parts = rt.parEnveloppe.map(function () { return null; });
+    if (shown > 0) {
+      var raw = rt.parEnveloppe.map(function (e) { return e.montant / shown * 100; });
+      parts = raw.map(function (x) { return Math.floor(x); });
+      var reste = 100 - parts.reduce(function (s, x) { return s + x; }, 0);
+      var idx = raw.map(function (x, i) { return i; }).sort(function (a, b) { return (raw[b] - Math.floor(raw[b])) - (raw[a] - Math.floor(raw[a])); });
+      for (var k = 0; k < reste && k < idx.length; k++) parts[idx[k]] += 1;
+    }
+    var rows = rt.parEnveloppe.map(function (e, i) {
+      return [e.enveloppe, K.formatEur(e.montant), parts[i] == null ? "—" : parts[i] + " %"];
+    });
+    // Bandeau bas réservé ; hauteur de ligne adaptative comme « Stratégie de donation ».
+    var bh = 0.7, by = HEXA.FOOT_Y - bh - 0.55;
+    var availH = by - tY - 0.12;
+    var rowH = Math.max(0.3, Math.min(0.5, availH / (rows.length + 1)));
+    dataTable(o.slide, {
+      x: o.body.x, y: tY, w: w,
+      headers: ["Enveloppe", "Montant réinvesti", "Part"],
+      colW: [w - 2 * 2.6, 2.6, 2.6],
+      align: ["left", "right", "right"],
+      rows: rows, rowH: rowH, size: rowH < 0.4 ? 10 : 11, headSize: 10.5
+    });
+
+    HEXA.card(o.slide, o.body.x, by, w, bh, { fill: C.PETROL, line: null });
+    o.slide.addText([
+      { text: "Total réinvesti : " + K.formatEur(rt.total) + "   ·   Reste à allouer : ", options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: "FFFFFF" } },
+      { text: K.formatEur(rt.reste), options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: C.GOLD } }
+    ], { x: o.body.x + 0.3, y: by, w: w - 0.6, h: bh, valign: "middle", lineSpacingMultiple: 1.05 });
+
+    o.slide.addText("Allocation indicative du capital dégagé par l'arbitrage, après donations envisagées. À affiner selon le profil de risque et l'horizon.", { x: o.body.x, y: HEXA.FOOT_Y - 0.42, w: w, h: 0.38, fontFace: F.BODY, fontSize: 8.5, italic: true, color: C.SLATE_LT, valign: "top", lineSpacingMultiple: 1.03 });
+  }
+
+  // Donations consenties (suivi du délai des 15 ans) + capacité de donation en franchise restante.
+  function donationsSlide(pptx, data) {
+    var S = window.HexaSuccession || {};
+    var suivi = S.donationsSuivi ? S.donationsSuivi(data) : [];
+    var cap = S.donationCapacite ? S.donationCapacite(data) : { parents: [], nEnfants: 0 };
+    var hasCap = cap.parents && cap.parents.length && cap.nEnfants > 0;
+    if (!suivi.length && !hasCap) return;
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "2.1 · Audit successoral", title: "Donations consenties & délai des 15 ans" });
+    var w = o.body.w, y = o.body.y;
+    // --- Donations déjà consenties (rappel des 15 ans) ---
+    if (suivi.length) {
+      o.slide.addText("Donations déjà consenties", { x: o.body.x, y: y, w: w, h: 0.3, fontFace: F.HEAD, fontSize: 12, bold: true, color: C.PETROL });
+      y += 0.34;
+      var rows = suivi.map(function (s) { return [s.donateur, s.beneficiaire, K.formatEur(s.valeur), s.type, K.formatDateFR(s.date), s.statut]; });
+      dataTable(o.slide, { x: o.body.x, y: y, w: w, headers: ["Donateur", "Bénéficiaire", "Valeur", "Type", "Date", "Délai des 15 ans"], colW: [w * 0.14, w * 0.13, w * 0.11, w * 0.20, w * 0.12, w * 0.30], align: ["left", "left", "right", "left", "center", "left"], rows: rows, rowH: 0.44, size: 9.5, headSize: 9.5 });
+      y += (rows.length + 1) * 0.44 + 0.26;
+    }
+    // --- Capacité de donation en franchise de droits : toutes possibilités cumulées ---
+    if (hasCap) {
+      o.slide.addText("Capacité de donation en franchise de droits — toutes possibilités (art. 779 + 790 G)", { x: o.body.x, y: y, w: w, h: 0.3, fontFace: F.HEAD, fontSize: 12, bold: true, color: C.PETROL });
+      y += 0.34;
+      var capRows = [];
+      cap.parents.forEach(function (p) {
+        p.rows.forEach(function (r) {
+          capRows.push([
+            p.label, r.enfant,
+            K.formatEur(r.abattement),
+            r.utilise > 0 ? "− " + K.formatEur(r.utilise) : "—",
+            K.formatEur(r.disponibleAbattement),
+            r.eligibleDonManuel ? K.formatEur(r.donManuel) : "non éligible",
+            r.consomme ? "consommé" : K.formatEur(r.disponible)
+          ]);
+        });
+      });
+      dataTable(o.slide, { x: o.body.x, y: y, w: w,
+        headers: ["Donateur", "Bénéficiaire", "Abatt. 779", "Donné < 15 ans", "Dispo. 779", "Don manuel 790 G", "Total franchise"],
+        colW: [w * 0.15, w * 0.15, w * 0.12, w * 0.13, w * 0.12, w * 0.16, w * 0.17],
+        align: ["left", "left", "right", "right", "right", "right", "right"],
+        rows: capRows, rowH: 0.37, size: 9, headSize: 8.5 });
+      y += (capRows.length + 1) * 0.37 + 0.1;
+      var parts = cap.parents.map(function (p) { return p.label + " : " + (p.consomme ? "abattements consommés" : K.formatEur(p.totalDisponible) + " disponibles"); });
+      o.slide.addText([{ text: "Capacité totale en franchise — ", options: { fontFace: F.HEAD, fontSize: 10, bold: true, color: C.PETROL } }, { text: parts.join("    ·    ") + ".", options: { fontFace: F.BODY, fontSize: 10, color: C.SLATE } }], { x: o.body.x, y: y, w: w, h: 0.3, valign: "top" });
+    }
+    o.slide.addText("Cumul par enfant et par parent : 100 000 € (art. 779, tout bien) + 31 865 € de don familial de somme d'argent (art. 790 G — donateur < 80 ans, bénéficiaire majeur) = 131 865 €, reconstitués tous les 15 ans. Les donations de moins de 15 ans (art. 784) minorent l'abattement de droit commun disponible.", { x: o.body.x, y: HEXA.FOOT_Y - 0.46, w: o.body.w, h: 0.42, fontFace: F.BODY, fontSize: 8.5, italic: true, color: C.SLATE_LT, valign: "top", lineSpacingMultiple: 1.03 });
   }
 
   function abattements(pptx) {
@@ -587,27 +734,6 @@
     o.slide.addText("* Base taxable des droits de donation — Article 669 du CGI.", { x: rx + 0.1, y: o.body.y + 2.8, w: rw - 0.2, h: 0.4, fontFace: F.BODY, fontSize: 9.5, italic: true, color: C.SLATE_LT });
   }
 
-  function donationExamples(pptx, data) {
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "2.1 · Audit successoral", title: "Exemples — donation de la nue-propriété aux 2 enfants" });
-    var ex = data.donationExamples, gap = 0.3, w = (o.body.w - gap) / 2;
-    ex.forEach(function (e, idx) {
-      var x = o.body.x + idx * (w + gap);
-      o.slide.addText(e.bien, { x: x, y: o.body.y, w: w, h: 0.36, fontFace: F.HEAD, fontSize: 13, bold: true, color: C.PETROL });
-      o.slide.addText(e.valeur, { x: x, y: o.body.y + 0.34, w: w, h: 0.3, fontFace: F.BODY, fontSize: 10, italic: true, color: C.SLATE_LT });
-      var rows = e.rows.map(function (r) { return [r.parent, r.np, r.valeurNP, r.abattement, r.base, r.droits]; });
-      rows.push(["TOTAL DROITS À PAYER", "", "", "", "", e.total]);
-      dataTable(o.slide, {
-        x: x, y: o.body.y + 0.7, w: w, headers: ["Parent", "% NP", "Valeur NP", "Abatt.", "Base", "Droits"],
-        colW: [w * 0.30, w * 0.11, w * 0.17, w * 0.17, w * 0.125, w * 0.115], align: ["left", "center", "right", "right", "right", "right"],
-        rows: rows, totalRows: [rows.length - 1], rowH: 0.5, size: 9, headSize: 9
-      });
-      var ry = o.body.y + 0.7 + (rows.length + 1) * 0.5 + 0.18;
-      HEXA.card(o.slide, x, ry, w, 0.6, { fill: C.GREEN_BG, line: null, shadow: false });
-      o.slide.addText("✓  " + e.reste, { x: x + 0.2, y: ry, w: w - 0.4, h: 0.6, fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GREEN, valign: "middle" });
-    });
-    o.slide.addText(data.donationNote, { x: o.body.x, y: HEXA.FOOT_Y - 0.62, w: o.body.w, h: 0.55, fontFace: F.BODY, fontSize: 9, italic: true, color: C.SLATE_LT, valign: "middle", lineSpacingMultiple: 1.02 });
-  }
-
   function strategies(pptx) {
     var o = HEXA.standardSlide(pptx, { page: page(), kicker: "2.1 · Audit successoral", title: "3 stratégies pour éviter l'indivision" });
     var ed = HEXA_EDU.strategies, gap = 0.25, w = (o.body.w - 2 * gap) / 3, h = o.body.h - 0.55;
@@ -631,44 +757,106 @@
 
   function objectifs(pptx, data) {
     var o = HEXA.standardSlide(pptx, { page: page(), kicker: "3 · Objectifs", title: "Objectifs hiérarchisés" });
-    var transH = (data.transmission ? 0.9 : 0);
-    numberedRows(o.slide, { x: o.body.x, y: o.body.y, w: o.body.w, h: o.body.h - (transH ? transH + 0.2 : 0) }, data.objectifs, { badge: C.PETROL, titleSize: 14, detailSize: 10.5 });
-    if (transH) {
-      var ty = o.body.y + o.body.h - transH;
-      HEXA.card(o.slide, o.body.x, ty, o.body.w, transH, { fill: C.GOLD, line: null });
-      o.slide.addText([
-        { text: "Objectif de transmission     ", options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: "FFFFFF" } },
-        { text: data.transmission, options: { fontFace: F.BODY, fontSize: 12.5, color: "FFFFFF" } }
-      ], { x: o.body.x + 0.3, y: ty, w: o.body.w - 0.6, h: transH, valign: "middle", lineSpacingMultiple: 1.05 });
-    }
+    numberedRows(o.slide, { x: o.body.x, y: o.body.y, w: o.body.w, h: o.body.h }, data.objectifs, { badge: C.PETROL, titleSize: 14, detailSize: 10.5 });
   }
 
+  // Actifs à arbitrer — tableau de revue de TOUS les actifs (valeur nette, date
+  // d'acquisition pour l'immobilier, montant arbitré/vendu) ; bandeau « disponible
+  // après arbitrage ». Piloté par les données (data.arbitrage.montants).
+  // Arbitrage : deux diapos distinctes — patrimoine immobilier puis patrimoine mobilier.
   function arbitrageCurrent(pptx, data) {
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "4 · Préconisations", title: "Arbitrer une partie de l'immobilier détenu en direct" });
-    var ar = data.arbitrage;
-    o.slide.addText(ar.intro, { x: o.body.x, y: o.body.y, w: o.body.w, h: 0.5, fontFace: F.BODY, fontSize: 12, color: C.SLATE, valign: "top", lineSpacingMultiple: 1.05 });
-    var cy = o.body.y + 0.65, ch = o.body.h - 0.65, w = o.body.w * 0.42;
-    // Situation actuelle
-    HEXA.card(o.slide, o.body.x, cy, w, ch, { fill: C.RED_BG, line: null });
-    o.slide.addText("SITUATION ACTUELLE", { x: o.body.x + 0.25, y: cy + 0.15, w: w - 0.5, h: 0.35, fontFace: F.HEAD, fontSize: 12, bold: true, color: C.RED, charSpacing: 1 });
-    o.slide.addText("Immobilier locatif détenu en direct", { x: o.body.x + 0.25, y: cy + 0.5, w: w - 0.5, h: 0.3, fontFace: F.BODY, fontSize: 10.5, italic: true, color: C.SLATE });
-    o.slide.addText([{ text: ar.current.rendement, options: { fontFace: F.HEAD, fontSize: 26, bold: true, color: C.RED } }, { text: "  " + ar.current.rendementLabel, options: { fontFace: F.BODY, fontSize: 10, color: C.SLATE } }], { x: o.body.x + 0.25, y: cy + 0.85, w: w - 0.5, h: 0.5, valign: "middle" });
-    var runs = [];
-    ar.current.points.forEach(function (p) {
-      runs.push({ text: (p.good ? "✓ " : "✗ "), options: { color: p.good ? C.GREEN : C.RED, bold: true, fontSize: 10.5 } });
-      runs.push({ text: p.label + " : ", options: { color: C.PETROL, bold: true, fontSize: 10.5 } });
-      runs.push({ text: p.value, options: { color: C.SLATE, fontSize: 10.5, breakLine: true, paraSpaceAfter: 5 } });
-    });
-    o.slide.addText(runs, { x: o.body.x + 0.25, y: cy + 1.45, w: w - 0.5, h: ch - 2.1, valign: "top", lineSpacingMultiple: 1.02 });
-    o.slide.addText("⚠  " + ar.current.note, { x: o.body.x + 0.25, y: cy + ch - 0.6, w: w - 0.5, h: 0.5, fontFace: F.BODY, fontSize: 9, italic: true, color: C.RED, valign: "middle" });
-    // Flèche
-    o.slide.addText("→", { x: o.body.x + w + 0.05, y: cy, w: o.body.w * 0.08, h: ch, fontFace: F.HEAD, fontSize: 40, bold: true, color: C.GOLD, align: "center", valign: "middle" });
-    // Gain global
-    var gx = o.body.x + w + o.body.w * 0.08 + 0.1, gw = o.body.w - (gx - o.body.x);
-    HEXA.card(o.slide, gx, cy, gw, ch, { fill: C.PETROL, line: null });
-    o.slide.addText("STRATÉGIE PROPOSÉE", { x: gx + 0.3, y: cy + 0.2, w: gw - 0.6, h: 0.4, fontFace: F.HEAD, fontSize: 13, bold: true, color: C.GOLD, charSpacing: 1 });
-    o.slide.addText("Diversifier ~900 K€ vers des enveloppes financières et une SCI à l'IS", { x: gx + 0.3, y: cy + 0.6, w: gw - 0.6, h: 0.6, fontFace: F.HEAD, fontSize: 14, bold: true, color: "FFFFFF", valign: "top" });
-    o.slide.addText(ar.gain, { x: gx + 0.3, y: cy + 1.35, w: gw - 0.6, h: ch - 1.55, fontFace: F.BODY, fontSize: 12, color: C.TEAL_PALE, valign: "top", lineSpacingMultiple: 1.12 });
+    var aa = K.arbitrageActifs(data);
+    function slide(title, lignes, immo) {
+      var o = HEXA.standardSlide(pptx, { page: page(), kicker: "4 · Préconisations", title: title });
+      var w = o.body.w;
+      var sousTotal = lignes.reduce(function (s, l) { return s + l.montant; }, 0);
+      var rows = lignes.map(function (l) {
+        return immo
+          ? [l.designation, l.detail || "", K.formatEur(l.valeurNette), (l.dateAcquisition ? K.formatDateFR(l.dateAcquisition) : "—"), l.montant > 0 ? K.formatEur(l.montant) : "—"]
+          : [l.designation, l.detail || "", K.formatEur(l.valeur), l.montant > 0 ? K.formatEur(l.montant) : "—"];
+      });
+      var bh = 0.9, by = HEXA.FOOT_Y - bh - 0.12;
+      var rowH = Math.max(0.32, Math.min(0.5, (by - o.body.y - 0.12) / (rows.length + 1)));
+      if (immo) {
+        dataTable(o.slide, { x: o.body.x, y: o.body.y, w: w,
+          headers: ["Bien", "Classe", "Valeur nette", "Date d'acq.", "Montant arbitré / vendu"],
+          colW: [w * 0.30, w * 0.22, w * 0.16, w * 0.14, w * 0.18],
+          align: ["left", "left", "right", "center", "right"], rows: rows, rowH: rowH, size: rowH < 0.42 ? 9 : 10, headSize: 9.5 });
+      } else {
+        dataTable(o.slide, { x: o.body.x, y: o.body.y, w: w,
+          headers: ["Actif", "Type", "Valeur", "Montant à désinvestir"],
+          colW: [w * 0.36, w * 0.26, w * 0.19, w * 0.19],
+          align: ["left", "left", "right", "right"], rows: rows, rowH: rowH, size: rowH < 0.42 ? 9 : 10, headSize: 9.5 });
+      }
+      HEXA.card(o.slide, o.body.x, by, w, bh, { fill: C.PETROL, line: null });
+      var runs = [
+        { text: (immo ? "Immobilier arbitré : " : "Mobilier à désinvestir : "), options: { fontFace: F.HEAD, fontSize: 12, bold: true, color: "FFFFFF" } },
+        { text: K.formatEur(sousTotal), options: { fontFace: F.HEAD, fontSize: 14, bold: true, color: C.GOLD } },
+        { text: "   ·   Disponible après arbitrage (total) : ", options: { fontFace: F.HEAD, fontSize: 12, bold: true, color: "FFFFFF" } },
+        { text: K.formatEur(aa.disponibleApres), options: { fontFace: F.HEAD, fontSize: 18, bold: true, color: C.GOLD } }
+      ];
+      if (immo && aa.venteImmo) runs.push({ text: "    Cession immobilière : prévoir ~3 mois pour la vente.", options: { fontFace: F.BODY, fontSize: 10, italic: true, color: C.TEAL_PALE } });
+      // Fiscalité de cession (plus-values immobilières) : montant calculé + warning
+      // explicite si prix/date d'acquisition manquent (jamais passé sous silence).
+      if (immo && K.plusValueImmo) {
+        var pv = K.plusValueImmo(data), pvParts = [];
+        if (pv.totalImpot > 0) pvParts.push("Fiscalité de cession estimée ≈ " + K.formatEur(pv.totalImpot) + " (IR 19 % + PS 17,2 % + surtaxe, après abattements de durée) — net ≈ " + K.formatEur(aa.disponibleApres - pv.totalImpot));
+        var pvWarn = pv.lignes.filter(function (l) { return l.warning; });
+        if (pvWarn.length) pvParts.push("⚠ PV non chiffrable : " + pvWarn.map(function (l) { return l.designation; }).join(", ") + " (prix / date d'acquisition à renseigner)");
+        // Gain phare : IFI actuel → IFI après sortie des biens arbitrés.
+        if (K.ifiPostArbitrage) {
+          var ipa = K.ifiPostArbitrage(data);
+          if (ipa.gain > 0) pvParts.push("IFI : " + K.formatEur(ipa.avant.montant) + " → " + K.formatEur(ipa.apres.montant) + "/an (gain ≈ " + K.formatEur(ipa.gain) + (ipa.apres.assujetti ? "" : " — sortie du champ de l'IFI") + ")");
+        }
+        if (pvParts.length) runs.push({ text: "\n" + pvParts.join("   ·   "), options: { fontFace: F.BODY, fontSize: 9, italic: true, color: C.TEAL_PALE } });
+      }
+      o.slide.addText(runs, { x: o.body.x + 0.3, y: by, w: w - 0.6, h: bh, valign: "middle", lineSpacingMultiple: 1.05 });
+    }
+    slide("Actifs à arbitrer — Immobilier", aa.lignes.filter(function (l) { return l.isImmo; }), true);
+    slide("Actifs à arbitrer — Patrimoine mobilier", aa.lignes.filter(function (l) { return !l.isImmo; }), false);
+  }
+
+  // Suivi des plafonds & marges disponibles (vue de synthèse, avant les stratégies) :
+  // assurance-vie avant 70 ans, IFI, IR, PER non utilisé (N-1..N-4), PEA/PEA-PME, et
+  // capacité de donation par parent UNIQUEMENT s'il a moins de 80 ans (don familial 790 G).
+  function suiviPlafonds(pptx, data) {
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "4 · Préconisations", title: "Suivi des plafonds & marges disponibles" });
+    var actif = data.actif || {}, t = K.assetTotals(actif, data), cap = K.peaCapacity(actif);
+    var er = data.epargneRetraite || {}, fisc = data.fiscalite || {};
+    var membres = (data.foyer && data.foyer.membres) || [];
+    // Année de référence : source unique (HexaSuccession.anneeReference, avec son
+    // garde-fou « jamais antérieure à la date du document ») — plus de copie locale.
+    var annee = (window.HexaSuccession && window.HexaSuccession.anneeReference)
+      ? window.HexaSuccession.anneeReference(data, data.successionParams || {})
+      : (function () { var m = /(\d{4})/.exec((data.doc && data.doc.date) || ""); return m ? parseInt(m[1], 10) : new Date().getFullYear(); })();
+    function lbl(m) { return ((m.qualite || "") + " " + (m.prenom || "")).trim(); }
+    function age(m) { var y = /(\d{4})/.exec(m.naissance || ""); return y ? annee - parseInt(y[1], 10) : null; }
+    function plafTot(p) { p = p || {}; return K.parseNum(p.N1) + K.parseNum(p.N2) + K.parseNum(p.N3) + K.parseNum(p.N4); }
+    var parents = membres.filter(function (m) { return m.qualite === "Monsieur" || m.qualite === "Madame"; });
+    var enfants = membres.filter(function (m) { return m.qualite === "Enfant"; });
+    var donations = (data.donations && data.donations.forEach) ? data.donations : [];
+    var avEncours = 0; (actif.autres || []).forEach(function (a) { if (/assurance.?vie/i.test(a.type || "")) avEncours += K.parseNum(a.valeur); });
+    var avAvant70 = parents.filter(function (p) { var a = age(p); return a != null && a < 70; }).map(lbl);
+    var fi = K.ifi(data), irN1 = K.parseNum(fisc.irN1), tmi = K.tmiPct(data);
+    var perM = plafTot(er.perPlafondMonsieur), perMme = plafTot(er.perPlafondMadame);
+    // Capacité de donation par parent : reprise EXACTE de donationCapacite (abattement
+    // 779 + don familial 790 G, nets des donations < 15 ans) — identique à la slide
+    // « Donations consenties & capacité en franchise », pour éviter deux chiffres divergents.
+    var donCap = (window.HexaSuccession && window.HexaSuccession.donationCapacite) ? window.HexaSuccession.donationCapacite(data) : { parents: [] };
+    var donParts = donCap.parents.map(function (p) { return p.label + " : " + K.formatEur(p.totalDisponible); });
+    var ifiAdj = [];
+    if (fi.abattementRP > 0) ifiAdj.push("résidence principale −30 %");
+    if (fi.dette > 0) ifiAdj.push("dettes immobilières déduites");
+    var ifiDetail = ifiAdj.length ? " (" + ifiAdj.join(", ") + ")" : "";
+    var cards = [
+      { title: "Assurance-vie — avant 70 ans", body: "Abattement 152 500 €/bénéficiaire (art. 990 I)." + (avAvant70.length ? " Éligible : " + avAvant70.join(", ") + "." : " Aucun parent < 70 ans (relève du 757 B : 30 500 €).") + (avEncours ? " Encours : " + K.formatEur(avEncours) + "." : "") },
+      { title: "IFI", body: (fi.assujetti ? "Assujetti — assiette nette " + K.formatEur(fi.nette) + ifiDetail + ", IFI estimé ≈ " + K.formatEur(fi.montant) + "." : "Non assujetti — assiette immobilière nette " + K.formatEur(fi.nette) + " (seuil 1,3 M€).") + (function () { var ipa = K.ifiPostArbitrage ? K.ifiPostArbitrage(data) : null; return (ipa && ipa.gain > 0) ? " Après arbitrage : ≈ " + K.formatEur(ipa.apres.montant) + "/an (gain ≈ " + K.formatEur(ipa.gain) + ")." : ""; })() },
+      { title: "Impôt sur le revenu", body: (irN1 ? "IR N-1 : " + K.formatEur(irN1) + ". " : "") + "TMI : " + (tmi ? tmi + " %" : "non renseignée") + "." },
+      { title: "PER — plafonds non utilisés", body: "Monsieur : " + K.formatEur(perM) + " · Madame : " + K.formatEur(perMme) + ". Total : " + K.formatEur(perM + perMme) + " (report N-1 à N-4)." },
+      { title: "PEA / PEA-PME", body: "PEA : " + K.formatEur(cap.restePEA) + " disponible (plafond 150 000 €). Enveloppe commune : " + K.formatEur(cap.resteGlobal) + " (225 000 €)." + ((!cap.versePEA && !cap.versePME) ? " (sous réserve des versements déjà effectués.)" : "") },
+      { title: "Donation — abattements (par parent)", body: enfants.length ? (donParts.length ? donParts.join(" · ") + ". Abattement 100 000 €/enfant/parent (art. 779) + don familial 31 865 € (art. 790 G, donateur < 80 ans & donataire majeur), renouvelables 15 ans." : "Aucun parent identifié.") : "Aucun enfant renseigné." }
+    ];
+    HEXA.cardGrid(o.slide, o.body, cards.map(function (c, i) { return { title: c.title, body: c.body, accent: i % 2 ? C.GOLD_DK : C.PETROL }; }), { cols: 3, titleSize: 12, bodySize: 9.5 });
   }
 
   function arbitrageStrategies(pptx, data) {
@@ -708,43 +896,87 @@
     return o;
   }
 
-  function perModule(pptx) {
-    dispositifDivider(pptx, "Plan Épargne Retraite", "Préparer la retraite & optimiser l'impôt");
-    var ed = HEXA_EDU.per;
-    eduGrid(pptx, "Dispositif · PER", "PER — Fonctionnement", ed.fonctionnement);
-    // avantages fiscaux : 2 panneaux
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · PER", title: "PER — Avantages fiscaux (règles 2026)" });
-    twoPanels(o.slide, o.body, { title: "À l'entrée — déduction des versements", color: C.PETROL, items: ed.entree }, { title: "À la sortie — capital ou rente", color: C.GOLD_DK, items: ed.sortie });
-    // reco avant/après
-    var r = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · PER", title: "PER — Piloter la tranche à 30 %" });
-    var w = (r.body.w - 1.4) / 2;
-    HEXA.kpi(r.slide, r.body.x, r.body.y + 0.6, w, 1.6, ed.reco.avant, "Taux moyen d'imposition actuel", { fill: C.RED, valueSize: 34 });
-    r.slide.addText("→", { x: r.body.x + w, y: r.body.y + 0.6, w: 1.4, h: 1.6, fontFace: F.HEAD, fontSize: 44, bold: true, color: C.GOLD, align: "center", valign: "middle" });
-    HEXA.kpi(r.slide, r.body.x + w + 1.4, r.body.y + 0.6, w, 1.6, ed.reco.apres, "Taux moyen d'imposition cible", { fill: C.GREEN, valueSize: 34 });
-    HEXA.card(r.slide, r.body.x, r.body.y + 2.6, r.body.w, 1.0, { fill: C.GOLD, line: null });
-    r.slide.addText([{ text: "Économie réalisée : ", options: { fontFace: F.HEAD, fontSize: 16, bold: true, color: "FFFFFF" } }, { text: ed.reco.eco, options: { fontFace: F.HEAD, fontSize: 22, bold: true, color: "FFFFFF" } }], { x: r.body.x, y: r.body.y + 2.6, w: r.body.w, h: 1.0, align: "center", valign: "middle" });
-    r.slide.addText("ℹ  " + ed.reco.note, { x: r.body.x, y: r.body.y + 3.8, w: r.body.w, h: 0.6, fontFace: F.BODY, fontSize: 10.5, italic: true, color: C.SLATE_LT, valign: "middle", align: "center" });
+  // Diapo unique « essentiel » d'un contenant : 2 colonnes (gauche = points clés,
+  // droite = fiscalité / avantages) + bandeau figure-clé optionnel.
+  function moduleEssentiel(pptx, opts) {
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · " + opts.name, title: opts.title });
+    var accent = opts.accent || C.PETROL, gap = 0.3;
+    var hasBanner = !!opts.banner, bodyH = o.body.h - (hasBanner ? 1.05 : 0);
+    var lw = (o.body.w - gap) * 0.56, rw = o.body.w - gap - lw;
+    function renderCol(x, w, col, fill) {
+      HEXA.card(o.slide, x, o.body.y, w, bodyH, { fill: fill, line: C.LINE });
+      o.slide.addText(col.title, { x: x + 0.25, y: o.body.y + 0.14, w: w - 0.5, h: 0.32, fontFace: F.HEAD, fontSize: 12.5, bold: true, color: accent });
+      var runs = [];
+      col.items.forEach(function (it) {
+        if (typeof it === "string") {
+          runs.push({ text: "▸ ", options: { color: accent, bold: true, fontSize: 10 } });
+          runs.push({ text: it, options: { color: C.SLATE, fontSize: 10, breakLine: true, paraSpaceAfter: 6 } });
+        } else {
+          runs.push({ text: "▸ " + it.t + " : ", options: { color: C.PETROL, bold: true, fontSize: 10 } });
+          runs.push({ text: it.d, options: { color: C.SLATE, fontSize: 10, breakLine: true, paraSpaceAfter: 6 } });
+        }
+      });
+      o.slide.addText(runs, { x: x + 0.25, y: o.body.y + 0.54, w: w - 0.5, h: bodyH - 0.68, valign: "top", lineSpacingMultiple: 1.04 });
+    }
+    renderCol(o.body.x, lw, opts.left, C.MIST);
+    renderCol(o.body.x + lw + gap, rw, opts.right, C.PAPER);
+    if (hasBanner) {
+      var by = o.body.y + bodyH + 0.15;
+      HEXA.card(o.slide, o.body.x, by, o.body.w, 0.9, { fill: accent, line: null });
+      o.slide.addText([
+        { text: opts.banner.label + "   ", options: { fontFace: F.HEAD, fontSize: 13, bold: true, color: "FFFFFF" } },
+        { text: opts.banner.value + "   ", options: { fontFace: F.HEAD, fontSize: 20, bold: true, color: C.GOLD } },
+        { text: opts.banner.note || "", options: { fontFace: F.BODY, fontSize: 10, color: C.TEAL_PALE } }
+      ], { x: o.body.x + 0.3, y: by, w: o.body.w - 0.6, h: 0.9, valign: "middle" });
+    }
   }
 
-  function avModule(pptx) {
-    dispositifDivider(pptx, "Assurance-vie", "Le « couteau suisse » de la gestion patrimoniale");
+  function perModule(pptx, data) {
+    var ed = HEXA_EDU.per;
+    // Bandeau d'économie d'IR CALCULÉ (aucun chiffre figé) : plafonds PER saisis
+    // (report N-1 à N-4, Monsieur + Madame) × TMI du foyer.
+    var er = (data && data.epargneRetraite) || {};
+    function plafTot(o) { o = o || {}; return K.parseNum(o.N1) + K.parseNum(o.N2) + K.parseNum(o.N3) + K.parseNum(o.N4); }
+    var plaf = plafTot(er.perPlafondMonsieur) + plafTot(er.perPlafondMadame);
+    var tmi = K.tmiPct(data);
+    var banner = (plaf > 0 && tmi > 0)
+      ? { label: "Économie d'IR si plafond utilisé :", value: "≈ " + K.formatEur(Math.round(plaf * tmi / 100)), note: "plafond disponible " + K.formatEur(plaf) + " (report N-1 à N-4) × TMI " + tmi + " %" }
+      : { label: "Économie d'IR :", value: "versement × TMI", note: tmi ? "TMI du foyer : " + tmi + " % — renseignez les plafonds PER (épargne retraite) pour chiffrer l'économie" : "renseignez la TMI du foyer et les plafonds PER pour chiffrer l'économie" };
+    moduleEssentiel(pptx, { name: "PER", title: "PER — l'essentiel", accent: C.PETROL,
+      left: { title: "Fonctionnement", items: ed.fonctionnement.slice(0, 5).map(function (f) { return { t: f.title, d: f.body }; }) },
+      right: { title: "Fiscalité — entrée / sortie", items: ed.entree.concat(ed.sortie) },
+      banner: banner });
+  }
+
+  // Fiscalité française de l'assurance-vie (commune aux deux contrats pour un résident fiscal français).
+  function avFiscFr() {
     var ed = HEXA_EDU.av;
-    eduGrid(pptx, "Dispositif · Assurance-vie LUX", "Assurance-vie luxembourgeoise — Fonctionnement", ed.fonctionnement, { accent: C.GOLD_DK });
-    eduGrid(pptx, "Dispositif · Assurance-vie LUX", "Assurance-vie luxembourgeoise — Fiscalité (2026)", ed.fiscalite, { accent: C.GOLD_DK });
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · Assurance-vie", title: "L'assurance-vie — un outil patrimonial complet" });
-    twoPanels(o.slide, o.body, { title: "En cours de vie — épargne disponible", color: C.PETROL, cards: ed.vie }, { title: "Pour la transmission — outil successoral", color: C.GOLD_DK, cards: ed.transmission });
-    // avant / après 70 ans
-    var r = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · Assurance-vie", title: "Fiscalité des versements — avant / après 70 ans" });
-    var gap = 0.3, w = (r.body.w - gap) / 2;
-    [[r.body.x, ed.avant70, "Avant 70 ans", C.PETROL], [r.body.x + w + gap, ed.apres70, "Après 70 ans", C.GOLD_DK]].forEach(function (p) {
-      var x = p[0], d = p[1];
-      HEXA.card(r.slide, x, r.body.y, w, r.body.h, { fill: C.MIST, line: C.LINE });
-      o2head(r.slide, x, r.body.y, w, p[2] + " — " + d.article, p[3]);
-      r.slide.addText("Abattement", { x: x + 0.3, y: r.body.y + 0.9, w: w - 0.6, h: 0.3, fontFace: F.HEAD, fontSize: 11, color: C.SLATE_LT });
-      r.slide.addText(d.abattement, { x: x + 0.3, y: r.body.y + 1.2, w: w - 0.6, h: 0.7, fontFace: F.HEAD, fontSize: 34, bold: true, color: p[3] });
-      r.slide.addText(d.abattementNote, { x: x + 0.3, y: r.body.y + 1.95, w: w - 0.6, h: 0.4, fontFace: F.BODY, fontSize: 10, italic: true, color: C.SLATE });
-      r.slide.addText("Fiscalité au-delà : " + d.bareme, { x: x + 0.3, y: r.body.y + 2.5, w: w - 0.6, h: r.body.h - 2.7, fontFace: F.BODY, fontSize: 11, color: C.SLATE, valign: "top", lineSpacingMultiple: 1.08 });
-    });
+    return [
+      "Rachats après 8 ans — abattement 4 600 €/an (9 200 € pour un couple), puis 7,5 % jusqu'à 150 000 € de versements, 12,8 % au-delà.",
+      "Transmission avant 70 ans (" + ed.avant70.article + ") — abattement " + ed.avant70.abattement + " par bénéficiaire, puis 20 % / 31,25 %.",
+      "Après 70 ans (" + ed.apres70.article + ") — abattement global " + ed.apres70.abattement + " sur les primes versées.",
+      "Prélèvements sociaux 17,2 % sur les gains (assurance-vie exclue de la hausse LFSS 2026 ; les autres enveloppes sont à 18,6 %)."
+    ];
+  }
+  function avModuleFr(pptx) {
+    var edFr = HEXA_EDU.avFr;
+    moduleEssentiel(pptx, { name: "Assurance-vie française", title: "Assurance-vie française — l'essentiel", accent: C.PETROL,
+      left: { title: "Fonctionnement", items: edFr.fonctionnement.slice(0, 5).map(function (f) { return { t: f.title, d: f.body }; }) },
+      right: { title: "Fiscalité (rachats & transmission)", items: avFiscFr() },
+      banner: { label: "Transmission hors succession :", value: "152 500 € / bénéficiaire", note: "abattement avant 70 ans (art. 990 I)" } });
+  }
+  function avModuleLux(pptx) {
+    var ed = HEXA_EDU.av;
+    moduleEssentiel(pptx, { name: "Assurance-vie luxembourgeoise", title: "Assurance-vie luxembourgeoise — l'essentiel", accent: C.GOLD_DK,
+      left: { title: "Fonctionnement & protection", items: ed.fonctionnement.slice(0, 5).map(function (f) { return { t: f.title, d: f.body }; }) },
+      right: { title: "Atouts vs assurance-vie française", items: [
+        "Triangle de sécurité : actifs ségrégués chez la banque dépositaire, sous contrôle du régulateur (CAA).",
+        "Super-privilège : l'assuré est créancier de 1er rang en cas de défaillance de l'assureur.",
+        "Hors loi « Sapin 2 » : pas de blocage administratif des rachats.",
+        "Multi-devises, fonds dédiés (FID / FAS) et accès au non coté.",
+        "Neutralité fiscale : pour un résident français, fiscalité française identique (990 I / 757 B) et portabilité en cas d'expatriation."
+      ] },
+      banner: { label: "Sécurité du capital —", value: "Triangle de sécurité", note: "super-privilège : assuré créancier de 1er rang" } });
   }
 
   function o2head(slide, x, y, w, title, color) {
@@ -755,67 +987,37 @@
 
   function scpiModule(pptx) {
     var ed = HEXA_EDU.scpi;
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Dispositif · SCPI", title: "SCPI — investir dans l'immobilier indirectement" });
-    o.slide.addText(ed.intro, { x: o.body.x, y: o.body.y, w: o.body.w, h: 0.75, fontFace: F.BODY, fontSize: 11, color: C.SLATE, valign: "top", lineSpacingMultiple: 1.05 });
-    var ky = o.body.y + 0.85, kw = (o.body.w - 0.6) / 4;
-    ed.kpis.forEach(function (k, i) { HEXA.kpi(o.slide, o.body.x + i * (kw + 0.2), ky, kw, 1.0, k.v, k.l, { fill: i % 2 ? C.GOLD_DK : C.PETROL, valueSize: 18, labelSize: 8 }); });
-    var fy = ky + 1.2;
-    HEXA.cardGrid(o.slide, { x: o.body.x, y: fy, w: o.body.w, h: 1.25 }, ed.familles.map(function (f) { return { title: f.title, body: f.body, accent: C.PETROL_LT }; }), { cols: 3, titleSize: 11.5, bodySize: 9.5 });
-    var vy = fy + 1.45, gap = 0.3, w = (o.body.w - gap) / 2;
-    HEXA.card(o.slide, o.body.x, vy, w, o.body.h - (vy - o.body.y), { fill: C.GREEN_BG, line: null });
-    o.slide.addText("✓  Pourquoi investir", { x: o.body.x + 0.25, y: vy + 0.1, w: w - 0.5, h: 0.3, fontFace: F.HEAD, fontSize: 11.5, bold: true, color: C.GREEN });
-    markerList(o.slide, { x: o.body.x + 0.25, y: vy + 0.45, w: w - 0.5, h: o.body.h - (vy - o.body.y) - 0.55 }, ed.avantages, "✓", C.GREEN, { size: 9.3, gap: 3 });
-    var rx = o.body.x + w + gap;
-    HEXA.card(o.slide, rx, vy, w, o.body.h - (vy - o.body.y), { fill: C.RED_BG, line: null });
-    o.slide.addText("⚠  Points de vigilance", { x: rx + 0.25, y: vy + 0.1, w: w - 0.5, h: 0.3, fontFace: F.HEAD, fontSize: 11.5, bold: true, color: C.RED });
-    markerList(o.slide, { x: rx + 0.25, y: vy + 0.45, w: w - 0.5, h: o.body.h - (vy - o.body.y) - 0.55 }, ed.vigilance, "•", C.RED, { size: 9.3, gap: 3 });
+    moduleEssentiel(pptx, { name: "SCPI", title: "SCPI — l'essentiel", accent: C.PETROL,
+      left: { title: "✓  Pourquoi investir", items: ed.avantages.slice(0, 5) },
+      right: { title: "⚠  Points de vigilance", items: ed.vigilance.slice(0, 5) },
+      banner: { label: ed.kpis[0].l + " :", value: ed.kpis[0].v, note: ed.intro.slice(0, 90) } });
   }
 
   function envelopeModule(pptx, name, ed, accent) {
-    dispositifDivider(pptx, name, "Enveloppe à fiscalité privilégiée");
-    eduGrid(pptx, "Dispositif · " + name, name + " — Fonctionnement", ed.fonctionnement, { accent: accent });
-    eduGrid(pptx, "Dispositif · " + name, name + " — Fiscalité détaillée (2026)", ed.fiscalite, { accent: accent, footnote: "Certaines règles 2026 (taux de PS, plafonds) sont à valider selon les textes définitifs." });
+    moduleEssentiel(pptx, { name: name, title: name + " — l'essentiel", accent: accent,
+      left: { title: "Fonctionnement", items: ed.fonctionnement.slice(0, 5).map(function (f) { return { t: f.title, d: f.body }; }) },
+      right: { title: "Fiscalité (2026)", items: ed.fiscalite.slice(0, 5).map(function (f) { return { t: f.title, d: f.body }; }) } });
   }
 
   function sciModule(pptx) {
-    dispositifDivider(pptx, "Immeuble de rapport en SCI à l'IS", "Optimiser revenus & transmission");
     var ed = HEXA_EDU.sci;
-    // montage + schéma
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "Montage · SCI à l'IS", title: "Détail du montage" });
-    var w = o.body.w * 0.6;
-    markerList(o.slide, { x: o.body.x, y: o.body.y, w: w, h: o.body.h }, ed.montage, "▸", C.PETROL, { size: 11, gap: 10 });
-    var rx = o.body.x + w + 0.3, rw = o.body.w - w - 0.3;
-    HEXA.card(o.slide, rx, o.body.y, rw, o.body.h, { fill: C.MIST, line: C.LINE });
-    o.slide.addText("Schéma d'ensemble", { x: rx + 0.2, y: o.body.y + 0.15, w: rw - 0.4, h: 0.35, fontFace: F.HEAD, fontSize: 12, bold: true, color: C.PETROL, align: "center" });
-    var fy = o.body.y + 0.7, fh = (o.body.h - 0.9) / ed.flow.length;
-    ed.flow.forEach(function (f, i) {
-      var yy = fy + i * fh;
-      HEXA.card(o.slide, rx + 0.4, yy, rw - 0.8, fh - 0.25, { fill: i === 1 ? C.PETROL : C.PAPER, line: C.PETROL_LT });
-      o.slide.addText(f, { x: rx + 0.4, y: yy, w: rw - 0.8, h: fh - 0.25, fontFace: F.HEAD, fontSize: 12, bold: true, color: i === 1 ? "FFFFFF" : C.PETROL, align: "center", valign: "middle" });
-      if (i < ed.flow.length - 1) o.slide.addText("▼", { x: rx, y: yy + fh - 0.28, w: rw, h: 0.25, fontFace: F.HEAD, fontSize: 12, color: C.GOLD, align: "center" });
-    });
-    // transmission 3 étapes
-    var t = HEXA.standardSlide(pptx, { page: page(), kicker: "Montage · SCI à l'IS", title: "Transmission des parts en nue-propriété" });
-    HEXA.cardGrid(t.slide, { x: t.body.x, y: t.body.y, w: t.body.w, h: 2.4 }, ed.transmission.map(function (s) { return { title: s.n + ". " + s.t, body: s.d, accent: C.GOLD_DK }; }), { cols: 3 });
-    var sy = t.body.y + 2.65;
-    HEXA.card(t.slide, t.body.x, sy, t.body.w, t.body.h - 2.65, { fill: C.PAPER, line: C.LINE });
-    t.slide.addText(ed.sortie.intro, { x: t.body.x + 0.25, y: sy + 0.12, w: t.body.w - 0.5, h: 0.3, fontFace: F.BODY, fontSize: 10, italic: true, color: C.SLATE_LT });
-    dataTable(t.slide, { x: t.body.x + 0.25, y: sy + 0.45, w: t.body.w * 0.5, rows: ed.sortie.rows, colW: [t.body.w * 0.5 - 1.6, 1.6], align: ["left", "right"], rowH: 0.3, size: 9.5, totalRows: [ed.sortie.rows.length - 1] });
-    t.slide.addText("✓  " + ed.sortie.result, { x: t.body.x + t.body.w * 0.5 + 0.5, y: sy + 0.45, w: t.body.w * 0.5 - 0.75, h: t.body.h - 2.65 - 0.6, fontFace: F.BODY, fontSize: 10.5, color: C.GREEN, valign: "top", lineSpacingMultiple: 1.1 });
-    // avantages / limites
-    var av = HEXA.standardSlide(pptx, { page: page(), kicker: "Montage · SCI à l'IS", title: "Avantages & points de vigilance" });
-    dataTable(av.slide, { x: av.body.x, y: av.body.y, w: av.body.w, headers: ["Levier", "Avantages", "Limites / vigilances"], colW: [2.6, (av.body.w - 2.6) / 2, (av.body.w - 2.6) / 2], align: ["left", "left", "left"], rows: ed.avantages.map(function (r) { return [r.crit, r.av, r.lim]; }), rowH: 0.72, size: 9.5, boldCols: [0] });
-    // points de vigilance
-    eduGrid(pptx, "Montage · SCI à l'IS", "Points de vigilance & conformité", ed.vigilance, { cols: 3, accent: C.PETROL });
-    // chronologie
-    var ch = HEXA.standardSlide(pptx, { page: page(), kicker: "Montage · SCI à l'IS", title: "Chronologie opérationnelle" });
-    dataTable(ch.slide, { x: ch.body.x, y: ch.body.y, w: ch.body.w, headers: ["Étape", "Délai moyen", "Acteur pilote", "Documents clés"], colW: [ch.body.w * 0.34, ch.body.w * 0.18, ch.body.w * 0.22, ch.body.w * 0.26], align: ["left", "center", "left", "left"], rows: ed.chronologie, rowH: 0.56, size: 9.5, boldCols: [0] });
+    moduleEssentiel(pptx, { name: "SCI à l'IS", title: "SCI à l'IS — l'essentiel", accent: C.PETROL,
+      left: { title: "Le montage", items: ed.montage.slice(0, 5) },
+      right: { title: "Avantages & vigilances", items: ed.avantages.map(function (r) { return { t: r.crit, d: r.av }; }).slice(0, 5) },
+      banner: { label: "Transmission des parts en NP :", value: "valeur réduite (art. 669)", note: "usufruit, revenus et contrôle conservés ; extinction non taxée au décès (art. 1133)" } });
   }
 
+  // Feuille de route opérationnelle GÉNÉRÉE depuis les décisions saisies :
+  // arbitrages (cessions immo ~3 mois / désinvestissements) → donations envisagées → réinvestissements par enveloppe.
   function planAction(pptx, data) {
-    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "5 · Plan d'action", title: "Plan d'action — avancer par étapes" });
-    var items = data.planAction, gap = 0.18, cols = 3;
-    var rows = Math.ceil(items.length / cols);
+    var o = HEXA.standardSlide(pptx, { page: page(), kicker: "5 · Plan d'action", title: "Plan d'action — feuille de route" });
+    var items = K.feuilleDeRoute(data).map(function (s, i) { return { step: "Étape " + (i + 1), title: s.title, objectif: s.objectif, proposition: s.proposition }; });
+
+    if (!items.length) {
+      o.slide.addText("Renseignez les arbitrages, les donations envisagées et les réinvestissements par enveloppe pour générer la feuille de route opérationnelle.", { x: o.body.x, y: o.body.y + 0.8, w: o.body.w, h: 0.9, align: "center", fontFace: F.BODY, fontSize: 13, italic: true, color: C.SLATE_LT, valign: "middle", lineSpacingMultiple: 1.1 });
+      return;
+    }
+    var gap = 0.18, cols = 3, rows = Math.ceil(items.length / cols);
     var cw = (o.body.w - gap * (cols - 1)) / cols, ch = (o.body.h - gap * (rows - 1)) / rows;
     items.forEach(function (it, i) {
       var r = Math.floor(i / cols), col = i % cols;
@@ -824,7 +1026,7 @@
       o.slide.addShape("roundRect", { x: x, y: y, w: cw, h: 0.5, fill: { color: C.PETROL }, line: { type: "none" }, rectRadius: 0.09 });
       o.slide.addShape("rect", { x: x, y: y + 0.28, w: cw, h: 0.22, fill: { color: C.PETROL }, line: { type: "none" } });
       o.slide.addText([{ text: it.step + "  ", options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: C.GOLD } }, { text: it.title, options: { fontFace: F.HEAD, fontSize: 11, bold: true, color: "FFFFFF" } }], { x: x + 0.2, y: y, w: cw - 0.4, h: 0.5, valign: "middle" });
-      o.slide.addText([{ text: it.objectif + "\n", options: { fontFace: F.BODY, fontSize: 9.5, italic: true, color: C.PETROL_LT } }, { text: it.proposition, options: { fontFace: F.BODY, fontSize: 9.8, color: C.SLATE } }], { x: x + 0.2, y: y + 0.62, w: cw - 0.4, h: ch - 0.75, valign: "top", lineSpacingMultiple: 1.05 });
+      o.slide.addText([{ text: it.objectif + "\n", options: { fontFace: F.BODY, fontSize: 9.5, italic: true, color: C.PETROL_LT } }, { text: it.proposition, options: { fontFace: F.BODY, fontSize: 9.5, color: C.SLATE } }], { x: x + 0.2, y: y + 0.62, w: cw - 0.4, h: ch - 0.75, valign: "top", lineSpacingMultiple: 1.04 });
     });
   }
 
@@ -880,25 +1082,28 @@
     risques(pptx, data);
 
     HEXA.divider(pptx, { num: "2.1", kicker: "Section", title: "Audit successoral", subtitle: "Scénarios de transmission & optimisation" });
-    successionTable(pptx, data, data.succession.monsieur, "Si Monsieur décède en premier", "2.1 · Audit successoral — 1er décès");
-    successionTable(pptx, data, data.succession.madame, "Si Madame décède en premier", "2.1 · Audit successoral — 1er décès");
-    successionCompare(pptx, data);
-    reserveQuotite(pptx, data);
+    if (m.successoral) abattements(pptx);          // règles d'abattement (pédagogie) — en tête de section
+    reserveQuotite(pptx, data);                    // réserve héréditaire & quotité disponible
+    // data.succession est recalculé par syncDerived (aucune valeur figée) : on ne
+    // rend les scénarios que si le recalcul a abouti.
+    if (data.succession && data.succession.monsieur) successionTable(pptx, data, data.succession.monsieur, "Si Monsieur décède en premier", "2.1 · Audit successoral — 1er décès");
+    if (data.succession && data.succession.madame) successionTable(pptx, data, data.succession.madame, "Si Madame décède en premier", "2.1 · Audit successoral — 1er décès");
     donationsSlide(pptx, data);
-    if (m.successoral) { abattements(pptx); demembrement(pptx); baremeUsufruit(pptx); }
-    donationExamples(pptx, data);
-    if (m.successoral) strategies(pptx);
+    if (m.successoral) { demembrement(pptx); baremeUsufruit(pptx); }
 
     HEXA.divider(pptx, { num: 3, kicker: "Section", title: "Objectifs", subtitle: "Priorités du foyer reliées au diagnostic" });
     objectifs(pptx, data);
 
     HEXA.divider(pptx, { num: 4, kicker: "Section", title: "Préconisations", subtitle: "Solutions argumentées & projections chiffrées" });
     arbitrageCurrent(pptx, data);
-    arbitrageStrategies(pptx, data);
+    suiviPlafonds(pptx, data);
     preconisationsSlide(pptx, data);
+    donationStrategieSlide(pptx, data);
+    reinvestissementSlide(pptx, data);
 
-    if (m.per) perModule(pptx);
-    if (m.assuranceVie) avModule(pptx);
+    if (m.per) perModule(pptx, data);
+    if (m.assuranceVie) avModuleFr(pptx);
+    if (m.assuranceVieLux) avModuleLux(pptx);
     if (m.scpi) scpiModule(pptx);
     if (m.pea) envelopeModule(pptx, "PEA", HEXA_EDU.pea, C.PETROL);
     if (m.peapme) envelopeModule(pptx, "PEA-PME", HEXA_EDU.peapme, C.PETROL_LT);
